@@ -152,25 +152,43 @@ class ImageProcessorApp {
     }
 
     handleDownload() {
-        if (!this.currentImage) return;
+        if (!this.currentImage && !this.canvas.width) return;
         
         const format = this.formatSelect.value;
         
-        if (format === 'gb7' || format === 'gb7-mask') {
-            const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-            this.gb7Encoder.download(imageData, `image.gb7`, format === 'gb7-mask');
-        } else {
-            const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
-            this.canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `image.${format}`;
-                link.click();
-                URL.revokeObjectURL(url);
-            }, mimeType);
+        try {
+            if (format === 'gb7' || format === 'gb7-mask') {
+                // Для GB7 всегда берем данные с canvas
+                const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                const hasMask = format === 'gb7-mask';
+                const filename = hasMask ? 'image-mask.gb7' : 'image.gb7';
+                this.gb7Encoder.download(imageData, filename, hasMask);
+            } else {
+                // Для PNG и JPEG используем стандартный метод
+                const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
+                const extension = format === 'jpg' ? 'jpg' : 'png';
+                
+                this.canvas.toBlob((blob) => {
+                    if (!blob) {
+                        throw new Error('Не удалось создать изображение');
+                    }
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `image.${extension}`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => URL.revokeObjectURL(url), 100);
+                }, mimeType, 0.92); // 0.92 - качество для JPEG
+            }
+        } catch (error) {
+            console.error('Ошибка сохранения:', error);
+            alert('Ошибка при сохранении файла: ' + error.message);
         }
     }
+
+
 
     fitToScreen() {
         if (!this.currentImage) return;
