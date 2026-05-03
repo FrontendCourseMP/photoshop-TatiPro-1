@@ -112,8 +112,37 @@ class ImageProcessorApp {
     }
 
     async loadGB7Image(file) {
-        // Будет реализовано в 3-м коммите
-        alert('Поддержка GB7 будет добавлена позже');
+        try {
+            const arrayBuffer = await ImageUtils.readFileAsArrayBuffer(file);
+            const decoded = this.gb7Decoder.decode(arrayBuffer);
+            const imageData = this.gb7Decoder.createImageData(decoded);
+            
+            // Устанавливаем размер canvas и отображаем
+            this.canvas.width = decoded.width;
+            this.canvas.height = decoded.height;
+            this.ctx.putImageData(imageData, 0, 0);
+            
+            // Показываем canvas, скрываем заглушку
+            this.canvas.style.display = 'block';
+            this.emptyState.style.display = 'none';
+            
+            // Сохраняем данные для скачивания
+            this.currentImage = imageData;
+            this.currentFormat = 'gb7';
+            this.downloadBtn.disabled = false;
+            
+            // Обновляем статусную строку
+            const depth = decoded.hasMask ? '7-bit + mask' : '7-bit grayscale';
+            this.updateStatus(decoded.width, decoded.height, depth);
+            
+            this.fitToScreen();
+            
+            console.log(`GB7 изображение загружено: ${decoded.width}x${decoded.height}`);
+            
+        } catch (error) {
+            console.error('Ошибка декодирования GB7:', error);
+            throw new Error('Ошибка чтения GB7: ' + error.message);
+        }
     }
 
     updateStatus(width, height, depth) {
