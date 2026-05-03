@@ -261,3 +261,125 @@ body {
     .canvas-wrapper { padding: 10px; }
     .status-left { flex-wrap: wrap; }
 }
+
+/* ===== DRAG & DROP ИНДИКАЦИЯ ===== */
+.canvas-wrapper.drag-over {
+    background: rgba(74, 144, 217, 0.08) !important;
+    outline: 2px dashed var(--accent);
+    outline-offset: -10px;
+}
+
+/* ===== УВЕДОМЛЕНИЯ ===== */
+.notification {
+    position: fixed;
+    bottom: 40px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    z-index: 1000;
+    animation: slideInRight 0.3s ease;
+    max-width: 350px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.notification-success {
+    background: #2d5016;
+    color: #b8d98a;
+    border: 1px solid #4a7a2a;
+}
+
+.notification-error {
+    background: #501616;
+    color: #d98a8a;
+    border: 1px solid #7a2a2a;
+}
+
+.notification-info {
+    background: #162d50;
+    color: #8ab8d9;
+    border: 1px solid #2a4a7a;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* ===== КНОПКИ И АКЦЕНТЫ ===== */
+.btn-primary-action {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: white !important;
+}
+
+.btn-primary-action:hover {
+    background: var(--accent-hover) !important;
+}
+
+/* ===== ПОДСВЕТКА ВЫБРАННОГО ФОРМАТА ===== */
+.select-dark option {
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+/* ===== КУРСОР ПРИ ПЕРЕТАСКИВАНИИ ===== */
+.workspace.drag-active {
+    cursor: copy;
+}
+
+/* ===== ПЕРЕХОДЫ ДЛЯ CANVAS ===== */
+#imageCanvas {
+    transition: opacity 0.3s ease;
+}
+
+/* ===== УЛУЧШЕННАЯ СТРОКА СОСТОЯНИЯ ===== */
+.status-item span:not(.status-label) {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* ===== АДАПТАЦИЯ ДЛЯ МАЛЕНЬКИХ ЭКРАНОВ ===== */
+@media (max-width: 600px) {
+    .top-bar-center {
+        display: none;
+    }
+    
+    .toolbar {
+        padding: 4px;
+        gap: 2px;
+    }
+    
+    .btn {
+        padding: 0 6px;
+    }
+    
+    .select-dark {
+        max-width: 120px;
+        font-size: 11px;
+    }
+    
+    .status-left {
+        gap: 4px;
+        font-size: 10px;
+    }
+    
+    .status-separator {
+        margin: 0 2px;
+    }
+    
+    .status-right {
+        display: none;
+    }
+}

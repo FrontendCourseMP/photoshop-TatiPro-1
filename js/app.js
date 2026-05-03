@@ -35,6 +35,26 @@ class ImageProcessorApp {
         this.zoomLevelEl = document.getElementById('zoomLevel');
     }
 
+        /**
+     * Показывает уведомление в стиле Photoshop
+     * @param {string} message - текст уведомления
+     * @param {string} type - тип: 'success', 'error', 'info'
+     * @param {number} duration - время показа в мс
+     */
+    showNotification(message, type = 'info', duration = 3000) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        // Удаляем через указанное время
+        setTimeout(() => {
+            notification.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, duration);
+    }
+
     bindEvents() {
         this.loadBtn.addEventListener('click', () => this.fileInput.click());
         this.fileInput.addEventListener('change', (e) => this.handleFileLoad(e));
@@ -45,24 +65,43 @@ class ImageProcessorApp {
     }
 
     setupDragAndDrop() {
+        // Счетчик для отслеживания перетаскивания
+        let dragCounter = 0;
+        
         ['dragenter', 'dragover'].forEach(eventName => {
             this.canvasWrapper.addEventListener(eventName, (e) => {
                 e.preventDefault();
-                this.canvasWrapper.style.background = 'rgba(74, 144, 217, 0.05)';
+                e.stopPropagation();
+                dragCounter++;
+                this.canvasWrapper.classList.add('drag-over');
+                document.querySelector('.workspace').classList.add('drag-active');
             });
         });
         
         ['dragleave', 'drop'].forEach(eventName => {
             this.canvasWrapper.addEventListener(eventName, (e) => {
                 e.preventDefault();
-                this.canvasWrapper.style.background = '';
+                e.stopPropagation();
+                dragCounter--;
+                
+                if (dragCounter <= 0) {
+                    dragCounter = 0;
+                    this.canvasWrapper.classList.remove('drag-over');
+                    document.querySelector('.workspace').classList.remove('drag-active');
+                }
             });
         });
         
         this.canvasWrapper.addEventListener('drop', (e) => {
-            e.preventDefault();
+            dragCounter = 0;
+            this.canvasWrapper.classList.remove('drag-over');
+            document.querySelector('.workspace').classList.remove('drag-active');
+            
             const file = e.dataTransfer.files[0];
-            if (file) this.processFile(file);
+            if (file) {
+                this.processFile(file);
+                this.showNotification(`Файл "${file.name}" загружен`, 'success');
+            }
         });
     }
 
@@ -75,20 +114,29 @@ class ImageProcessorApp {
         const extension = ImageUtils.getFileExtension(file.name);
         
         if (!['png', 'jpg', 'jpeg', 'gb7'].includes(extension)) {
-            alert('Неподдерживаемый формат. Используйте PNG, JPEG или GB7.');
+            this.showNotification(
+                `Формат .${extension} не поддерживается. Используйте PNG, JPEG или GB7`,
+                'error',
+                4000
+            );
             return;
         }
         
         try {
+            this.showNotification(`Загрузка "${file.name}"...`, 'info', 1500);
+            
             if (extension === 'gb7') {
                 await this.loadGB7Image(file);
             } else {
                 await this.loadStandardImage(file);
             }
+            
             this.statusFormat.textContent = extension.toUpperCase();
+            this.showNotification(`Изображение загружено (${this.canvas.width}×${this.canvas.height})`, 'success');
+            
         } catch (error) {
             console.error('Ошибка загрузки:', error);
-            alert('Ошибка при загрузке файла: ' + error.message);
+            this.showNotification(error.message, 'error', 5000);
         }
     }
 
@@ -163,6 +211,7 @@ class ImageProcessorApp {
                 const hasMask = format === 'gb7-mask';
                 const filename = hasMask ? 'image-mask.gb7' : 'image.gb7';
                 this.gb7Encoder.download(imageData, filename, hasMask);
+                this.showNotification(`Сохранено как ${filename}`, 'success');
             } else {
                 // Для PNG и JPEG используем стандартный метод
                 const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
@@ -180,6 +229,7 @@ class ImageProcessorApp {
                     link.click();
                     document.body.removeChild(link);
                     setTimeout(() => URL.revokeObjectURL(url), 100);
+                    this.showNotification(`Сохранено как image.${extension}`, 'success');
                 }, mimeType, 0.92); // 0.92 - качество для JPEG
             }
         } catch (error) {
