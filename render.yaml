@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: photoshop-tatipro
+    env: static
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
