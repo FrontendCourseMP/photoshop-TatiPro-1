@@ -15,7 +15,7 @@
                 <span class="app-title">Photoshop-TatiPro</span>
             </div>
             <div class="top-bar-center">
-                <span class="workspace-info">Лабораторная работа №1</span>
+                <span class="workspace-info">Обработка изображений</span>
             </div>
             <div class="top-bar-right">
                 <span class="window-controls">— □ ✕</span>
@@ -48,6 +48,15 @@
             <div class="tool-separator"></div>
 
             <div class="tool-group">
+                <button id="pipetteBtn" class="btn btn-dark" title="Пипетка (I)">
+                    <span class="btn-icon">💉</span>
+                    <span class="btn-text">Пипетка</span>
+                </button>
+            </div>
+
+            <div class="tool-separator"></div>
+
+            <div class="tool-group">
                 <button id="fitBtn" class="btn btn-dark" title="Вписать в окно">
                     <span class="btn-icon">🔍</span>
                     <span class="btn-text">По размеру</span>
@@ -68,6 +77,82 @@
                     <h3>Нет открытого изображения</h3>
                     <p>Перетащите изображение сюда или нажмите "Открыть"</p>
                     <p class="empty-formats">Поддерживаются: PNG, JPEG, GB7</p>
+                </div>
+            </div>
+
+                    <!-- Панель каналов -->
+            <div class="panel channels-panel" id="channelsPanel">
+                <div class="panel-header">
+                    <span class="panel-title">Каналы</span>
+                    <button class="panel-toggle" id="channelsPanelToggle" title="Свернуть/развернуть">▸</button>
+                </div>
+                <div class="panel-content" id="channelsPanelContent">
+                    <div class="channel-item" data-channel="red">
+                        <canvas class="channel-preview" id="previewRed" width="60" height="40"></canvas>
+                        <div class="channel-info">
+                            <label class="channel-label">
+                                <input type="checkbox" class="channel-checkbox" data-channel="red" checked>
+                                <span class="channel-color red-dot"></span>
+                                Красный
+                            </label>
+                        </div>
+                    </div>
+                    <div class="channel-item" data-channel="green">
+                        <canvas class="channel-preview" id="previewGreen" width="60" height="40"></canvas>
+                        <div class="channel-info">
+                            <label class="channel-label">
+                                <input type="checkbox" class="channel-checkbox" data-channel="green" checked>
+                                <span class="channel-color green-dot"></span>
+                                Зелёный
+                            </label>
+                        </div>
+                    </div>
+                    <div class="channel-item" data-channel="blue">
+                        <canvas class="channel-preview" id="previewBlue" width="60" height="40"></canvas>
+                        <div class="channel-info">
+                            <label class="channel-label">
+                                <input type="checkbox" class="channel-checkbox" data-channel="blue" checked>
+                                <span class="channel-color blue-dot"></span>
+                                Синий
+                            </label>
+                        </div>
+                    </div>
+                    <div class="channel-item" data-channel="alpha">
+                        <canvas class="channel-preview" id="previewAlpha" width="60" height="40"></canvas>
+                        <div class="channel-info">
+                            <label class="channel-label">
+                                <input type="checkbox" class="channel-checkbox" data-channel="alpha" checked>
+                                <span class="channel-color alpha-dot"></span>
+                                Альфа
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Панель информации пипетки -->
+            <div class="panel info-panel" id="infoPanel">
+                <div class="panel-header">
+                    <span class="panel-title">Информация о пикселе</span>
+                </div>
+                <div class="panel-content">
+                    <div class="info-row">
+                        <span class="info-label">Координаты:</span>
+                        <span class="info-value" id="infoCoords">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">RGB:</span>
+                        <span class="info-value" id="infoRGB">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">HEX:</span>
+                        <span class="info-value" id="infoHEX">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">CIELAB:</span>
+                        <span class="info-value" id="infoLAB">—</span>
+                    </div>
+                    <div class="color-preview" id="colorPreview"></div>
                 </div>
             </div>
         </main>

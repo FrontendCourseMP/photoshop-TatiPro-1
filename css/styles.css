@@ -383,3 +383,187 @@ body {
         display: none;
     }
 }
+
+/* ===== ПАНЕЛИ (каналы и информация) ===== */
+.panel {
+    position: absolute;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 12px;
+    z-index: 100;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    min-width: 200px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg-input);
+    border-radius: 6px 6px 0 0;
+    border-bottom: 1px solid var(--border);
+    cursor: move;
+}
+
+.panel-title {
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+}
+
+.panel-toggle {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.panel-toggle:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.panel-content {
+    padding: 8px;
+}
+
+/* Панель каналов */
+.channels-panel {
+    top: 60px;
+    right: 10px;
+    width: 220px;
+}
+
+.channel-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.channel-item:hover {
+    background: var(--bg-hover);
+}
+
+.channel-preview {
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    width: 60px;
+    height: 40px;
+}
+
+.channel-info {
+    flex: 1;
+}
+
+.channel-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-primary);
+}
+
+.channel-checkbox {
+    cursor: pointer;
+}
+
+.channel-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.red-dot { background: #ff4444; }
+.green-dot { background: #44ff44; }
+.blue-dot { background: #4488ff; }
+.alpha-dot { 
+    background: repeating-conic-gradient(#999 0% 25%, #fff 0% 50%) 50% / 8px 8px;
+    border: 1px solid #999;
+}
+
+.channel-item.disabled {
+    opacity: 0.4;
+}
+
+.channel-item.disabled .channel-preview {
+    filter: grayscale(100%);
+}
+
+/* Панель информации (пипетка) */
+.info-panel {
+    bottom: 40px;
+    right: 10px;
+    width: 220px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.info-row:last-of-type {
+    border-bottom: none;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+}
+
+.color-preview {
+    width: 100%;
+    height: 30px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    margin-top: 6px;
+}
+
+/* Активная кнопка инструмента */
+.btn.active-tool {
+    background: var(--accent) !important;
+    color: white !important;
+    border-color: var(--accent) !important;
+}
+
+/* Адаптивность для панелей */
+@media (max-width: 768px) {
+    .channels-panel {
+        top: 50px;
+        right: 4px;
+        width: 180px;
+        font-size: 10px;
+    }
+    
+    .info-panel {
+        bottom: 32px;
+        right: 4px;
+        width: 180px;
+    }
+    
+    .channel-preview {
+        width: 40px;
+        height: 30px;
+    }
+}
