@@ -144,6 +144,13 @@ class ImageProcessorApp {
         const dataURL = await ImageUtils.readFileAsDataURL(file);
         const img = await ImageUtils.loadImageFromURL(dataURL);
         
+        // Создаём временный canvas для анализа загруженного изображения
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = img.width;
+        tempCanvas.height = img.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(img, 0, 0);
+        
         this.canvas.width = img.width;
         this.canvas.height = img.height;
         this.ctx.drawImage(img, 0, 0);
@@ -155,7 +162,18 @@ class ImageProcessorApp {
         this.currentFormat = ImageUtils.getFileExtension(file.name);
         this.downloadBtn.disabled = false;
         
-        this.updateStatus(img.width, img.height, '24-bit (RGB)');
+        // Определяем глубину цвета
+        const hasAlpha = this.imageHasAlpha(tempCtx, img.width, img.height);
+        const extension = this.currentFormat.toLowerCase();
+        
+        let depth;
+        if (extension === 'png') {
+            depth = hasAlpha ? '32-bit (RGBA)' : '24-bit (RGB)';
+        } else if (extension === 'jpg' || extension === 'jpeg') {
+            depth = '24-bit (RGB)';
+        }
+        
+        this.updateStatus(img.width, img.height, depth);
         this.fitToScreen();
     }
 
@@ -253,6 +271,19 @@ class ImageProcessorApp {
 
     handleResize() {
         // Автоматическая адаптация через CSS
+    }
+
+    imageHasAlpha(ctx, width, height) {
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        
+        // Проверяем все пиксели — если хоть один имеет альфу не 255, значит есть прозрачность
+        for (let i = 3; i < data.length; i += 4) {
+            if (data[i] < 255) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
