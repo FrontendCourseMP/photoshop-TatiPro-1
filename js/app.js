@@ -1,6 +1,8 @@
 import { ImageUtils } from './utils.js';
 import { GB7Decoder } from './gb7/decoder.js';
 import { GB7Encoder } from './gb7/encoder.js';
+import { ChannelManager } from './channels.js';
+import { PipetteTool } from './pipette.js';
 
 class ImageProcessorApp {
     constructor() {
@@ -15,12 +17,18 @@ class ImageProcessorApp {
         this.gb7Decoder = new GB7Decoder();
         this.gb7Encoder = new GB7Encoder();
         
+        // Новые модули для ЛР2
+        this.channelManager = new ChannelManager();
+        this.pipetteTool = null; // Инициализируем после загрузки изображения
+        
         this.initElements();
         this.bindEvents();
         this.setupDragAndDrop();
+        this.setupChannelsPanel();
     }
 
     initElements() {
+        // Основные элементы
         this.fileInput = document.getElementById('fileInput');
         this.loadBtn = document.getElementById('loadBtn');
         this.downloadBtn = document.getElementById('downloadBtn');
@@ -28,19 +36,33 @@ class ImageProcessorApp {
         this.fitBtn = document.getElementById('fitBtn');
         this.actualBtn = document.getElementById('actualBtn');
         
+        // Статус бар
         this.statusWidth = document.getElementById('statusWidth');
         this.statusHeight = document.getElementById('statusHeight');
         this.statusDepth = document.getElementById('statusDepth');
         this.statusFormat = document.getElementById('statusFormat');
         this.zoomLevelEl = document.getElementById('zoomLevel');
+        
+        // Кнопка пипетки
+        this.pipetteBtn = document.getElementById('pipetteBtn');
+        
+        // Панель информации пипетки
+        this.infoCoords = document.getElementById('infoCoords');
+        this.infoRGB = document.getElementById('infoRGB');
+        this.infoHEX = document.getElementById('infoHEX');
+        this.infoLAB = document.getElementById('infoLAB');
+        this.colorPreview = document.getElementById('colorPreview');
+        
+        // Чекбоксы каналов
+        this.channelCheckboxes = document.querySelectorAll('.channel-checkbox');
+        
+        // Превью каналов
+        this.previewRed = document.getElementById('previewRed');
+        this.previewGreen = document.getElementById('previewGreen');
+        this.previewBlue = document.getElementById('previewBlue');
+        this.previewAlpha = document.getElementById('previewAlpha');
     }
 
-        /**
-     * Показывает уведомление в стиле Photoshop
-     * @param {string} message - текст уведомления
-     * @param {string} type - тип: 'success', 'error', 'info'
-     * @param {number} duration - время показа в мс
-     */
     showNotification(message, type = 'info', duration = 3000) {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
@@ -48,7 +70,6 @@ class ImageProcessorApp {
         
         document.body.appendChild(notification);
         
-        // Удаляем через указанное время
         setTimeout(() => {
             notification.style.animation = 'fadeOut 0.3s ease';
             setTimeout(() => notification.remove(), 300);
@@ -62,10 +83,12 @@ class ImageProcessorApp {
         this.fitBtn.addEventListener('click', () => this.fitToScreen());
         this.actualBtn.addEventListener('click', () => this.showActualSize());
         window.addEventListener('resize', () => this.handleResize());
+        
+        // Кнопка пипетки
+        this.pipetteBtn.addEventListener('click', () => this.togglePipette());
     }
 
     setupDragAndDrop() {
-        // Счетчик для отслеживания перетаскивания
         let dragCounter = 0;
         
         ['dragenter', 'dragover'].forEach(eventName => {
@@ -105,6 +128,106 @@ class ImageProcessorApp {
         });
     }
 
+    /**
+     * Настройка панели каналов — обработчики чекбоксов
+     */
+    setupChannelsPanel() {
+        this.channelCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const channel = e.target.dataset.channel;
+                const isEnabled = e.target.checked;
+                
+                // Обновляем состояние в ChannelManager
+                this.channelManager.channels[channel] = isEnabled;
+                
+                // Подсвечиваем/затемняем элемент канала
+                const channelItem = e.target.closest('.channel-item');
+                if (isEnabled) {
+                    channelItem.classList.remove('disabled');
+                } else {
+                    channelItem.classList.add('disabled');
+                }
+                
+                // Обновляем главный холст
+                this.updateCanvasFromChannels();
+            });
+        });
+    }
+
+    /**
+     * Обновляет главный холст с учётом состояния каналов
+     */
+    updateCanvasFromChannels() {
+        if (!this.channelManager.originalImageData) return;
+        
+        const newImageData = this.channelManager.applyChannels();
+        if (newImageData) {
+            this.ctx.putImageData(newImageData, 0, 0);
+        }
+    }
+
+    /**
+     * Обновляет превью каналов в панели
+     */
+    updateChannelPreviews() {
+        if (!this.channelManager.originalImageData) return;
+        
+        const previewWidth = 60;
+        const previewHeight = 40;
+        
+        // Для каждого канала создаём превью и отображаем в соответствующем canvas
+        const channels = ['red', 'green', 'blue', 'alpha'];
+        const previews = [this.previewRed, this.previewGreen, this.previewBlue, this.previewAlpha];
+        
+        channels.forEach((channel, index) => {
+            const previewCanvas = this.channelManager.createPreviewCanvas(
+                channel, 
+                previewWidth, 
+                previewHeight
+            );
+            
+            if (previewCanvas && previews[index]) {
+                const previewCtx = previews[index].getContext('2d');
+                previews[index].width = previewWidth;
+                previews[index].height = previewHeight;
+                previewCtx.drawImage(previewCanvas, 0, 0);
+            }
+        });
+    }
+
+    /**
+     * Включает/выключает инструмент пипетка
+     */
+    togglePipette() {
+        if (!this.pipetteTool) {
+            this.pipetteTool = new PipetteTool(this.canvas, this.ctx);
+            this.pipetteTool.onColorPick = (data) => this.updateInfoPanel(data);
+        }
+        
+        const isActive = this.pipetteTool.toggle();
+        
+        // Подсвечиваем кнопку когда инструмент активен
+        if (isActive) {
+            this.pipetteBtn.classList.add('active-tool');
+            this.showNotification('Пипетка активирована. Кликните по изображению', 'info');
+        } else {
+            this.pipetteBtn.classList.remove('active-tool');
+        }
+    }
+
+    /**
+     * Обновляет панель информации о пикселе
+     */
+    updateInfoPanel(data) {
+        this.infoCoords.textContent = `X: ${data.x}, Y: ${data.y}`;
+        this.infoRGB.textContent = `R: ${data.r}, G: ${data.g}, B: ${data.b}`;
+        this.infoHEX.textContent = data.hex;
+        this.infoLAB.textContent = `L: ${data.lab.L}, a: ${data.lab.a}, b: ${data.lab.b}`;
+        
+        // Обновляем превью цвета
+        this.colorPreview.style.backgroundColor = `rgb(${data.r}, ${data.g}, ${data.b})`;
+    }
+
     handleFileLoad(event) {
         const file = event.target.files[0];
         if (file) this.processFile(file);
@@ -125,6 +248,12 @@ class ImageProcessorApp {
         try {
             this.showNotification(`Загрузка "${file.name}"...`, 'info', 1500);
             
+            // Деактивируем пипетку при загрузке нового изображения
+            if (this.pipetteTool && this.pipetteTool.active) {
+                this.pipetteTool.deactivate();
+                this.pipetteBtn.classList.remove('active-tool');
+            }
+            
             if (extension === 'gb7') {
                 await this.loadGB7Image(file);
             } else {
@@ -132,6 +261,28 @@ class ImageProcessorApp {
             }
             
             this.statusFormat.textContent = extension.toUpperCase();
+            
+            // Инициализируем ChannelManager данными с холста
+            const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+            let channelCount = 4; // По умолчанию RGBA
+            
+            if (extension === 'gb7') {
+                // Определяем количество каналов для GB7
+                const decoded = this.lastDecodedGB7;
+                channelCount = decoded && decoded.hasMask ? 2 : 1;
+            } else if (extension === 'jpg' || extension === 'jpeg') {
+                channelCount = 3; // JPEG всегда RGB
+            }
+            
+            this.channelManager.setOriginalImage(imageData, channelCount);
+            this.updateChannelPreviews();
+            
+            // Сбрасываем чекбоксы каналов
+            this.resetChannelCheckboxes(channelCount);
+            
+            // Инициализируем пипетку заново
+            this.pipetteTool = null;
+            
             this.showNotification(`Изображение загружено (${this.canvas.width}×${this.canvas.height})`, 'success');
             
         } catch (error) {
@@ -140,11 +291,40 @@ class ImageProcessorApp {
         }
     }
 
+    /**
+     * Сбрасывает чекбоксы каналов в зависимости от количества каналов
+     */
+    resetChannelCheckboxes(channelCount) {
+        const redEl = document.querySelector('[data-channel="red"]').closest('.channel-item');
+        const greenEl = document.querySelector('[data-channel="green"]').closest('.channel-item');
+        const blueEl = document.querySelector('[data-channel="blue"]').closest('.channel-item');
+        const alphaEl = document.querySelector('[data-channel="alpha"]').closest('.channel-item');
+        
+        // RGB каналы
+        const hasRGB = channelCount >= 3;
+        document.querySelector('[data-channel="red"]').checked = hasRGB;
+        document.querySelector('[data-channel="green"]').checked = hasRGB;
+        document.querySelector('[data-channel="blue"]').checked = hasRGB;
+        
+        redEl.style.display = hasRGB ? '' : 'none';
+        greenEl.style.display = hasRGB ? '' : 'none';
+        blueEl.style.display = hasRGB ? '' : 'none';
+        
+        redEl.classList.remove('disabled');
+        greenEl.classList.remove('disabled');
+        blueEl.classList.remove('disabled');
+        
+        // Альфа канал
+        const hasAlpha = channelCount === 2 || channelCount === 4;
+        document.querySelector('[data-channel="alpha"]').checked = hasAlpha;
+        alphaEl.style.display = hasAlpha ? '' : 'none';
+        alphaEl.classList.remove('disabled');
+    }
+
     async loadStandardImage(file) {
         const dataURL = await ImageUtils.readFileAsDataURL(file);
         const img = await ImageUtils.loadImageFromURL(dataURL);
         
-        // Создаём временный canvas для анализа загруженного изображения
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = img.width;
         tempCanvas.height = img.height;
@@ -162,7 +342,6 @@ class ImageProcessorApp {
         this.currentFormat = ImageUtils.getFileExtension(file.name);
         this.downloadBtn.disabled = false;
         
-        // Определяем глубину цвета
         const hasAlpha = this.imageHasAlpha(tempCtx, img.width, img.height);
         const extension = this.currentFormat.toLowerCase();
         
@@ -183,27 +362,24 @@ class ImageProcessorApp {
             const decoded = this.gb7Decoder.decode(arrayBuffer);
             const imageData = this.gb7Decoder.createImageData(decoded);
             
-            // Устанавливаем размер canvas и отображаем
+            // Сохраняем декодированные данные для определения каналов
+            this.lastDecodedGB7 = decoded;
+            
             this.canvas.width = decoded.width;
             this.canvas.height = decoded.height;
             this.ctx.putImageData(imageData, 0, 0);
             
-            // Показываем canvas, скрываем заглушку
             this.canvas.style.display = 'block';
             this.emptyState.style.display = 'none';
             
-            // Сохраняем данные для скачивания
             this.currentImage = imageData;
             this.currentFormat = 'gb7';
             this.downloadBtn.disabled = false;
             
-            // Обновляем статусную строку
             const depth = decoded.hasMask ? '7-bit + mask' : '7-bit grayscale';
             this.updateStatus(decoded.width, decoded.height, depth);
             
             this.fitToScreen();
-            
-            console.log(`GB7 изображение загружено: ${decoded.width}x${decoded.height}`);
             
         } catch (error) {
             console.error('Ошибка декодирования GB7:', error);
@@ -224,14 +400,12 @@ class ImageProcessorApp {
         
         try {
             if (format === 'gb7' || format === 'gb7-mask') {
-                // Для GB7 всегда берем данные с canvas
                 const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
                 const hasMask = format === 'gb7-mask';
                 const filename = hasMask ? 'image-mask.gb7' : 'image.gb7';
                 this.gb7Encoder.download(imageData, filename, hasMask);
                 this.showNotification(`Сохранено как ${filename}`, 'success');
             } else {
-                // Для PNG и JPEG используем стандартный метод
                 const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
                 const extension = format === 'jpg' ? 'jpg' : 'png';
                 
@@ -248,19 +422,18 @@ class ImageProcessorApp {
                     document.body.removeChild(link);
                     setTimeout(() => URL.revokeObjectURL(url), 100);
                     this.showNotification(`Сохранено как image.${extension}`, 'success');
-                }, mimeType, 0.92); // 0.92 - качество для JPEG
+                }, mimeType, 0.92);
             }
         } catch (error) {
             console.error('Ошибка сохранения:', error);
-            alert('Ошибка при сохранении файла: ' + error.message);
+            this.showNotification(error.message, 'error', 4000);
         }
     }
 
-
-
     fitToScreen() {
         if (!this.currentImage) return;
-        // Автоматически через CSS max-width/max-height
+        this.canvas.style.maxWidth = '100%';
+        this.canvas.style.maxHeight = '100%';
     }
 
     showActualSize() {
@@ -276,8 +449,7 @@ class ImageProcessorApp {
     imageHasAlpha(ctx, width, height) {
         const imageData = ctx.getImageData(0, 0, width, height);
         const data = imageData.data;
-        
-        // Проверяем все пиксели — если хоть один имеет альфу не 255, значит есть прозрачность
+
         for (let i = 3; i < data.length; i += 4) {
             if (data[i] < 255) {
                 return true;
