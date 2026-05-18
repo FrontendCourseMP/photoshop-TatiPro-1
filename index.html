@@ -47,12 +47,23 @@
 
             <div class="tool-separator"></div>
 
-            <div class="tool-group">
-                <button id="pipetteBtn" class="btn btn-dark" title="Пипетка (I)">
-                    <span class="btn-icon">💉</span>
-                    <span class="btn-text">Пипетка</span>
-                </button>
-            </div>
+                <div class="tool-group">
+                    <button id="pipetteBtn" class="btn btn-dark" title="Пипетка (I)">
+                        <span class="btn-icon">💉</span>
+                        <span class="btn-text">Пипетка</span>
+                    </button>
+                </div>
+
+            <div class="tool-separator"></div>
+
+            <div class="tool-separator"></div>
+
+                <div class="tool-group">
+                    <button id="levelsBtn" class="btn btn-dark" title="Уровни (Ctrl+L)" disabled>
+                        <span class="btn-icon">📊</span>
+                        <span class="btn-text">Уровни</span>
+                    </button>
+                </div>
 
             <div class="tool-separator"></div>
 
@@ -182,5 +193,87 @@
     </div>
     
     <script type="module" src="js/app.js"></script>
+    
+        <!-- Диалоговое окно "Уровни" -->
+    <dialog id="levelsDialog" class="levels-dialog">
+        <div class="dialog-header">
+            <h2 class="dialog-title">Уровни</h2>
+            <button id="closeLevelsBtn" class="dialog-close-btn" title="Закрыть">✕</button>
+        </div>
+        
+        <div class="dialog-body">
+            <!-- Выбор канала -->
+            <div class="levels-channel-select">
+                <label class="levels-label">Канал:</label>
+                <select id="channelSelect" class="select-dark">
+                    <option value="master">Master (RGB)</option>
+                    <option value="red">Красный</option>
+                    <option value="green">Зелёный</option>
+                    <option value="blue">Синий</option>
+                    <option value="alpha">Альфа</option>
+                </select>
+            </div>
+            
+            <!-- Гистограмма -->
+            <div class="histogram-container">
+                <canvas id="histogramCanvas" class="histogram-canvas" width="256" height="120"></canvas>
+                <div class="histogram-controls">
+                    <label class="radio-label">
+                        <input type="radio" name="histScale" value="linear" checked>
+                        Линейная
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="histScale" value="log">
+                        Логарифмическая
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Слайдеры входных уровней -->
+            <div class="levels-sliders">
+                <div class="slider-group">
+                    <label class="slider-label">
+                        <span>Тени (чёрный):</span>
+                        <input type="number" id="blackInput" class="slider-number" min="0" max="254" value="0">
+                    </label>
+                    <input type="range" id="blackSlider" class="slider-range" min="0" max="254" value="0">
+                </div>
+                
+                <div class="slider-group">
+                    <label class="slider-label">
+                        <span>Полутона (гамма):</span>
+                        <input type="number" id="gammaInput" class="slider-number" min="0.10" max="9.90" step="0.01" value="1.00">
+                    </label>
+                    <input type="range" id="gammaSlider" class="slider-range" min="10" max="990" value="100">
+                </div>
+                
+                <div class="slider-group">
+                    <label class="slider-label">
+                        <span>Света (белый):</span>
+                        <input type="number" id="whiteInput" class="slider-number" min="1" max="255" value="255">
+                    </label>
+                    <input type="range" id="whiteSlider" class="slider-range" min="1" max="255" value="255">
+                </div>
+            </div>
+            
+            <!-- Предпросмотр -->
+            <div class="levels-preview-option">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="previewCheckbox" checked>
+                    Предпросмотр
+                </label>
+            </div>
+        </div>
+        
+        <div class="dialog-footer">
+            <button id="resetLevelsBtn" class="btn btn-dark">Сброс</button>
+            <div class="dialog-footer-right">
+                <button id="cancelLevelsBtn" class="btn btn-dark">Отмена</button>
+                <button id="applyLevelsBtn" class="btn btn-primary-action">Применить</button>
+            </div>
+        </div>
+    </dialog>
+
+
 </body>
 </html>
