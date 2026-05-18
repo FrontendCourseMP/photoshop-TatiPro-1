@@ -3,6 +3,12 @@ import { GB7Decoder } from './gb7/decoder.js';
 import { GB7Encoder } from './gb7/encoder.js';
 import { ChannelManager } from './channels.js';
 import { PipetteTool } from './pipette.js';
+import { ImageUtils } from './utils.js';
+import { GB7Decoder } from './gb7/decoder.js';
+import { GB7Encoder } from './gb7/encoder.js';
+import { ChannelManager } from './channels.js';
+import { PipetteTool } from './pipette.js';
+import { LevelsTool } from './levels.js';  
 
 class ImageProcessorApp {
     constructor() {
@@ -17,14 +23,17 @@ class ImageProcessorApp {
         this.gb7Decoder = new GB7Decoder();
         this.gb7Encoder = new GB7Encoder();
         
-        // Новые модули для ЛР2
+        // ЛР2
         this.channelManager = new ChannelManager();
         this.pipetteTool = null; // Инициализируем после загрузки изображения
+        this.levelsTool = null;
         
         this.initElements();
         this.bindEvents();
         this.setupDragAndDrop();
         this.setupChannelsPanel();
+
+
     }
 
     initElements() {
@@ -45,6 +54,8 @@ class ImageProcessorApp {
         
         // Кнопка пипетки
         this.pipetteBtn = document.getElementById('pipetteBtn');
+
+        this.levelsBtn = document.getElementById('levelsBtn');
         
         // Панель информации пипетки
         this.infoCoords = document.getElementById('infoCoords');
@@ -86,6 +97,8 @@ class ImageProcessorApp {
         
         // Кнопка пипетки
         this.pipetteBtn.addEventListener('click', () => this.togglePipette());
+
+        this.levelsBtn.addEventListener('click', () => this.openLevels());
     }
 
     setupDragAndDrop() {
@@ -215,6 +228,18 @@ class ImageProcessorApp {
         }
     }
 
+    openLevels() {
+        if (!this.canvas.width) return;
+        
+        if (!this.levelsTool) {
+            this.levelsTool = new LevelsTool(this);
+        }
+        
+        this.levelsTool.open();
+    }
+
+
+
     /**
      * Обновляет панель информации о пикселе
      */
@@ -285,6 +310,8 @@ class ImageProcessorApp {
             
             this.showNotification(`Изображение загружено (${this.canvas.width}×${this.canvas.height})`, 'success');
             
+            this.levelsBtn.disabled = false;
+
         } catch (error) {
             console.error('Ошибка загрузки:', error);
             this.showNotification(error.message, 'error', 5000);
@@ -341,6 +368,8 @@ class ImageProcessorApp {
         this.currentImage = img;
         this.currentFormat = ImageUtils.getFileExtension(file.name);
         this.downloadBtn.disabled = false;
+
+        this.levelsBtn.disabled = false;
         
         const hasAlpha = this.imageHasAlpha(tempCtx, img.width, img.height);
         const extension = this.currentFormat.toLowerCase();
@@ -375,6 +404,8 @@ class ImageProcessorApp {
             this.currentImage = imageData;
             this.currentFormat = 'gb7';
             this.downloadBtn.disabled = false;
+
+            this.levelsBtn.disabled = false;
             
             const depth = decoded.hasMask ? '7-bit + mask' : '7-bit grayscale';
             this.updateStatus(decoded.width, decoded.height, depth);
