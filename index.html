@@ -56,12 +56,19 @@
 
             <div class="tool-separator"></div>
 
-            <div class="tool-separator"></div>
-
                 <div class="tool-group">
                     <button id="levelsBtn" class="btn btn-dark" title="Уровни (Ctrl+L)" disabled>
                         <span class="btn-icon">📊</span>
                         <span class="btn-text">Уровни</span>
+                    </button>
+                </div>
+
+            <div class="tool-separator"></div>
+
+                <div class="tool-group">
+                    <button id="resizeBtn" class="btn btn-dark" title="Изменить размер изображения" disabled>
+                        <span class="btn-icon">📐</span>
+                        <span class="btn-text">Размер</span>
                     </button>
                 </div>
 
@@ -271,6 +278,80 @@
                 <button id="cancelLevelsBtn" class="btn btn-dark">Отмена</button>
                 <button id="applyLevelsBtn" class="btn btn-primary-action">Применить</button>
             </div>
+        </div>
+    </dialog>
+
+        <!-- Модальное окно "Изменение размера" -->
+    <dialog id="resizeDialog" class="levels-dialog">
+        <div class="dialog-header">
+            <h2 class="dialog-title">Изменение размера изображения</h2>
+            <button id="closeResizeBtn" class="dialog-close-btn" title="Закрыть">✕</button>
+        </div>
+        
+        <div class="dialog-body">
+            <!-- Информация о пикселях -->
+            <div class="resize-info">
+                <div class="info-row">
+                    <span class="info-label">Исходный размер:</span>
+                    <span class="info-value" id="resizeOriginalPixels">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Новый размер:</span>
+                    <span class="info-value" id="resizeNewPixels">—</span>
+                </div>
+            </div>
+            
+            <!-- Выбор единиц измерения -->
+            <div class="levels-channel-select">
+                <label class="levels-label">Единицы:</label>
+                <select id="resizeUnitSelect" class="select-dark">
+                    <option value="percent">Проценты (%)</option>
+                    <option value="pixels">Пиксели (px)</option>
+                </select>
+            </div>
+            
+            <!-- Поля ширины и высоты -->
+            <div class="resize-fields">
+                <div class="resize-field-group">
+                    <label class="slider-label">
+                        <span>Ширина:</span>
+                        <input type="number" id="resizeWidth" class="slider-number" min="1" value="100">
+                    </label>
+                </div>
+                <div class="resize-field-group">
+                    <label class="slider-label">
+                        <span>Высота:</span>
+                        <input type="number" id="resizeHeight" class="slider-number" min="1" value="100">
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Сохранение пропорций -->
+            <div class="levels-preview-option">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="keepAspectRatio" checked>
+                    Сохранять пропорции
+                </label>
+            </div>
+            
+            <!-- Выбор метода интерполяции -->
+            <div class="levels-channel-select">
+                <label class="levels-label">Метод:</label>
+                <select id="interpolationSelect" class="select-dark">
+                    <option value="bilinear">Билинейная</option>
+                    <option value="nearestNeighbor">Ближайший сосед</option>
+                </select>
+            </div>
+            
+            <!-- Тултип с описанием метода -->
+            <div class="interpolation-tooltip" id="interpolationTooltip">
+                Усредняет цвета 4 соседних пикселей. Даёт гладкий результат.
+            </div>
+        </div>
+        
+        <div class="dialog-footer">
+            <button id="cancelResizeBtn" class="btn btn-dark">Отмена</button>
+            <button id="applyResizeBtn" class="btn btn-primary-action">Применить</button>
         </div>
     </dialog>
 

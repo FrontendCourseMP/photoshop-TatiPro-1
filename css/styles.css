@@ -771,3 +771,54 @@ body {
         margin: 10px;
     }
 }
+
+/* ===== МОДАЛЬНОЕ ОКНО МАСШТАБИРОВАНИЯ ===== */
+.resize-info {
+    margin-bottom: 16px;
+    background: var(--bg-canvas);
+    border-radius: 4px;
+    padding: 8px 12px;
+}
+
+.resize-info .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.resize-info .info-row:last-child {
+    border-bottom: none;
+}
+
+.resize-fields {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.resize-field-group {
+    flex: 1;
+}
+
+.resize-field-group .slider-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.resize-field-group .slider-number {
+    width: 100%;
+}
+
+/* Тултип интерполяции */
+.interpolation-tooltip {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--bg-canvas);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    border-left: 3px solid var(--accent);
+}
