@@ -9,6 +9,8 @@ import { GB7Encoder } from './gb7/encoder.js';
 import { ChannelManager } from './channels.js';
 import { PipetteTool } from './pipette.js';
 import { LevelsTool } from './levels.js';  
+import { ResizeTool } from './resize.js'; 
+import { Interpolation } from './interpolation.js';
 
 class ImageProcessorApp {
     constructor() {
@@ -23,15 +25,17 @@ class ImageProcessorApp {
         this.gb7Decoder = new GB7Decoder();
         this.gb7Encoder = new GB7Encoder();
         
-        // ЛР2
         this.channelManager = new ChannelManager();
         this.pipetteTool = null; // Инициализируем после загрузки изображения
         this.levelsTool = null;
-        
+        this.resizeTool = null;
+
         this.initElements();
         this.bindEvents();
         this.setupDragAndDrop();
         this.setupChannelsPanel();
+
+
 
 
     }
@@ -57,6 +61,8 @@ class ImageProcessorApp {
 
         this.levelsBtn = document.getElementById('levelsBtn');
         
+        this.resizeBtn = document.getElementById('resizeBtn');
+
         // Панель информации пипетки
         this.infoCoords = document.getElementById('infoCoords');
         this.infoRGB = document.getElementById('infoRGB');
@@ -99,6 +105,8 @@ class ImageProcessorApp {
         this.pipetteBtn.addEventListener('click', () => this.togglePipette());
 
         this.levelsBtn.addEventListener('click', () => this.openLevels());
+
+        this.resizeBtn.addEventListener('click', () => this.openResize());
     }
 
     setupDragAndDrop() {
@@ -238,6 +246,28 @@ class ImageProcessorApp {
         this.levelsTool.open();
     }
 
+        /**
+     * Открывает модальное окно "Изменение размера"
+     */
+    openResize() {
+        if (!this.canvas.width) return;
+        
+        if (!this.resizeTool) {
+            this.resizeTool = new ResizeTool(this);
+        }
+        
+        this.resizeTool.open();
+    }
+
+    /**
+     * Обновляет отображение масштаба в статусной строке
+     */
+    updateZoomDisplay() {
+        if (!this.zoomLevelEl) return;
+        // Масштаб считается относительно CSS-размера
+        this.zoomLevelEl.textContent = '100%';
+    }
+
 
 
     /**
@@ -312,6 +342,8 @@ class ImageProcessorApp {
             
             this.levelsBtn.disabled = false;
 
+            this.resizeBtn.disabled = false;
+
         } catch (error) {
             console.error('Ошибка загрузки:', error);
             this.showNotification(error.message, 'error', 5000);
@@ -370,6 +402,8 @@ class ImageProcessorApp {
         this.downloadBtn.disabled = false;
 
         this.levelsBtn.disabled = false;
+
+        this.resizeBtn.disabled = false;
         
         const hasAlpha = this.imageHasAlpha(tempCtx, img.width, img.height);
         const extension = this.currentFormat.toLowerCase();
@@ -406,6 +440,8 @@ class ImageProcessorApp {
             this.downloadBtn.disabled = false;
 
             this.levelsBtn.disabled = false;
+
+            this.resizeBtn.disabled = false;
             
             const depth = decoded.hasMask ? '7-bit + mask' : '7-bit grayscale';
             this.updateStatus(decoded.width, decoded.height, depth);
