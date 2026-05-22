@@ -3,11 +3,6 @@ import { GB7Decoder } from './gb7/decoder.js';
 import { GB7Encoder } from './gb7/encoder.js';
 import { ChannelManager } from './channels.js';
 import { PipetteTool } from './pipette.js';
-import { ImageUtils } from './utils.js';
-import { GB7Decoder } from './gb7/decoder.js';
-import { GB7Encoder } from './gb7/encoder.js';
-import { ChannelManager } from './channels.js';
-import { PipetteTool } from './pipette.js';
 import { LevelsTool } from './levels.js';  
 import { ResizeTool } from './resize.js'; 
 import { Interpolation } from './interpolation.js';
@@ -498,10 +493,27 @@ class ImageProcessorApp {
     }
 
     fitToScreen() {
-        if (!this.currentImage) return;
-        this.canvas.style.maxWidth = '100%';
-        this.canvas.style.maxHeight = '100%';
+        if (!this.canvas.width || !this.canvas.height) return;
+        
+        const wrapper = this.canvasWrapper;
+        const wrapperWidth = wrapper.clientWidth - 100; // отступы по 50px с каждой стороны
+        const wrapperHeight = wrapper.clientHeight - 100;
+        
+        const scaleX = wrapperWidth / this.canvas.width;
+        const scaleY = wrapperHeight / this.canvas.height;
+        let scale = Math.min(scaleX, scaleY, 3.0); // не больше 300%
+        scale = Math.max(scale, 0.12); // не меньше 12%
+        
+        this.canvas.style.width = Math.round(this.canvas.width * scale) + 'px';
+        this.canvas.style.height = Math.round(this.canvas.height * scale) + 'px';
+        
+        const percent = Math.round(scale * 100);
+        if (this.zoomLevelEl) {
+            this.zoomLevelEl.textContent = percent + '%';
+        }
     }
+
+
 
     showActualSize() {
         if (!this.currentImage) return;
