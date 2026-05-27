@@ -73,7 +73,11 @@ class ImageProcessorApp {
         this.previewGreen = document.getElementById('previewGreen');
         this.previewBlue = document.getElementById('previewBlue');
         this.previewAlpha = document.getElementById('previewAlpha');
+
+        this.zoomSlider = document.getElementById('zoomSlider');
+        this.zoomInput = document.getElementById('zoomInput');
     }
+
 
     showNotification(message, type = 'info', duration = 3000) {
         const notification = document.createElement('div');
@@ -102,6 +106,21 @@ class ImageProcessorApp {
         this.levelsBtn.addEventListener('click', () => this.openLevels());
 
         this.resizeBtn.addEventListener('click', () => this.openResize());
+
+        this.zoomSlider.addEventListener('input', () => {
+            const value = parseInt(this.zoomSlider.value, 10);
+            this.zoomInput.value = value;
+            this.setZoom(value);
+        });
+
+        this.zoomInput.addEventListener('change', () => {
+            let value = parseInt(this.zoomInput.value, 10);
+            if (!Number.isFinite(value)) value = 100;
+            value = Math.max(12, Math.min(300, value));
+            this.zoomInput.value = value;
+            this.zoomSlider.value = value;
+            this.setZoom(value);
+        });
     }
 
     setupDragAndDrop() {
@@ -257,10 +276,16 @@ class ImageProcessorApp {
     /**
      * Обновляет отображение масштаба в статусной строке
      */
-    updateZoomDisplay() {
-        if (!this.zoomLevelEl) return;
-        // Масштаб считается относительно CSS-размера
-        this.zoomLevelEl.textContent = '100%';
+    setZoom(percentValue) {
+        if (!this.canvas.width || !this.canvas.height) return;
+        
+        const scale = percentValue / 100;
+        this.canvas.style.width = Math.round(this.canvas.width * scale) + 'px';
+        this.canvas.style.height = Math.round(this.canvas.height * scale) + 'px';
+        
+        if (this.zoomLevelEl) {
+            this.zoomLevelEl.textContent = percentValue + '%';
+        }
     }
 
 
@@ -501,30 +526,29 @@ class ImageProcessorApp {
         if (!this.canvas.width || !this.canvas.height) return;
         
         const wrapper = this.canvasWrapper;
-        const wrapperWidth = wrapper.clientWidth - 100; // отступы по 50px с каждой стороны
+        const wrapperWidth = wrapper.clientWidth - 100;
         const wrapperHeight = wrapper.clientHeight - 100;
         
         const scaleX = wrapperWidth / this.canvas.width;
         const scaleY = wrapperHeight / this.canvas.height;
-        let scale = Math.min(scaleX, scaleY, 3.0); // не больше 300%
-        scale = Math.max(scale, 0.12); // не меньше 12%
-        
-        this.canvas.style.width = Math.round(this.canvas.width * scale) + 'px';
-        this.canvas.style.height = Math.round(this.canvas.height * scale) + 'px';
+        let scale = Math.min(scaleX, scaleY, 3.0);
+        scale = Math.max(scale, 0.12);
         
         const percent = Math.round(scale * 100);
-        if (this.zoomLevelEl) {
-            this.zoomLevelEl.textContent = percent + '%';
-        }
+        this.setZoom(percent);
+        
+        if (this.zoomSlider) this.zoomSlider.value = percent;
+        if (this.zoomInput) this.zoomInput.value = percent;
     }
-
-
 
     showActualSize() {
         if (!this.currentImage) return;
-        this.canvas.style.maxWidth = 'none';
-        this.canvas.style.maxHeight = 'none';
+        this.setZoom(100);
+        if (this.zoomSlider) this.zoomSlider.value = 100;
+        if (this.zoomInput) this.zoomInput.value = 100;
     }
+
+
 
     handleResize() {
         // Автоматическая адаптация через CSS
