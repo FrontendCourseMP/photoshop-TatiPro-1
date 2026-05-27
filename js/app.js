@@ -314,16 +314,8 @@ class ImageProcessorApp {
             
             // Инициализируем ChannelManager данными с холста
             const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-            let channelCount = 4; // По умолчанию RGBA
-            
-            if (extension === 'gb7') {
-                // Определяем количество каналов для GB7
-                const decoded = this.lastDecodedGB7;
-                channelCount = decoded && decoded.hasMask ? 2 : 1;
-            } else if (extension === 'jpg' || extension === 'jpeg') {
-                channelCount = 3; // JPEG всегда RGB
-            }
-            
+            const channelCount = ImageUtils.detectChannelCount(imageData);
+
             this.channelManager.setOriginalImage(imageData, channelCount);
             this.updateChannelPreviews();
             
@@ -347,34 +339,47 @@ class ImageProcessorApp {
 
     /**
      * Сбрасывает чекбоксы каналов в зависимости от количества каналов
+     * @param {number} channelCount - количество каналов (1-4)
      */
+
     resetChannelCheckboxes(channelCount) {
         const redEl = document.querySelector('[data-channel="red"]').closest('.channel-item');
         const greenEl = document.querySelector('[data-channel="green"]').closest('.channel-item');
         const blueEl = document.querySelector('[data-channel="blue"]').closest('.channel-item');
         const alphaEl = document.querySelector('[data-channel="alpha"]').closest('.channel-item');
-        
-        // RGB каналы
+
+        const isGray = channelCount === 1 || channelCount === 2;
         const hasRGB = channelCount >= 3;
-        document.querySelector('[data-channel="red"]').checked = hasRGB;
-        document.querySelector('[data-channel="green"]').checked = hasRGB;
-        document.querySelector('[data-channel="blue"]').checked = hasRGB;
-        
-        redEl.style.display = hasRGB ? '' : 'none';
-        greenEl.style.display = hasRGB ? '' : 'none';
-        blueEl.style.display = hasRGB ? '' : 'none';
-        
-        redEl.classList.remove('disabled');
-        greenEl.classList.remove('disabled');
-        blueEl.classList.remove('disabled');
-        
-        // Альфа канал
         const hasAlpha = channelCount === 2 || channelCount === 4;
-        document.querySelector('[data-channel="alpha"]').checked = hasAlpha;
+
+        if (isGray) {
+            // Показываем red как "Серый"
+            redEl.style.display = '';
+            redEl.querySelector('.channel-label').lastChild.textContent = ' Серый';
+            redEl.querySelector('.red-dot').style.background = '#999';
+            document.querySelector('[data-channel="red"]').checked = true;
+
+            greenEl.style.display = 'none';
+            blueEl.style.display = 'none';
+        } else {
+            // Восстанавливаем RGB
+            redEl.style.display = hasRGB ? '' : 'none';
+            redEl.querySelector('.channel-label').lastChild.textContent = ' Красный';
+            redEl.querySelector('.red-dot').style.background = '';
+            document.querySelector('[data-channel="red"]').checked = hasRGB;
+
+            greenEl.style.display = hasRGB ? '' : 'none';
+            document.querySelector('[data-channel="green"]').checked = hasRGB;
+
+            blueEl.style.display = hasRGB ? '' : 'none';
+            document.querySelector('[data-channel="blue"]').checked = hasRGB;
+        }
+
         alphaEl.style.display = hasAlpha ? '' : 'none';
-        alphaEl.classList.remove('disabled');
+        document.querySelector('[data-channel="alpha"]').checked = hasAlpha;
     }
 
+ 
     async loadStandardImage(file) {
         const dataURL = await ImageUtils.readFileAsDataURL(file);
         const img = await ImageUtils.loadImageFromURL(dataURL);

@@ -58,26 +58,42 @@ export class ChannelManager {
      * Выключенные каналы заменяются нулями (чёрный)
      * @returns {ImageData|null} - новое изображение с учётом состояния каналов
      */
-    applyChannels() {
+
+        applyChannels() {
         if (!this.originalImageData) return null;
 
         const width = this.originalImageData.width;
         const height = this.originalImageData.height;
         const result = new ImageData(width, height);
-
         const src = this.originalImageData.data;
         const dst = result.data;
 
+        // Особый случай: только альфа включена → показываем как маску (grayscale)
+        const onlyAlpha = !this.channels.red && !this.channels.green
+                       && !this.channels.blue && this.channels.alpha;
+        
+        if (onlyAlpha) {
+            for (let i = 0; i < src.length; i += 4) {
+                const a = src[i + 3];
+                dst[i]     = a;
+                dst[i + 1] = a;
+                dst[i + 2] = a;
+                dst[i + 3] = 255;
+            }
+            return result;
+        }
+
+        // Обычный путь: применяем включённые каналы
         for (let i = 0; i < src.length; i += 4) {
-            // Если канал включен — копируем значение, если выключен — ставим 0
-            dst[i]     = this.channels.red   ? src[i]     : 0; // R
-            dst[i + 1] = this.channels.green ? src[i + 1] : 0; // G
-            dst[i + 2] = this.channels.blue  ? src[i + 2] : 0; // B
-            dst[i + 3] = this.channels.alpha ? src[i + 3] : 255; // A (если выключен — непрозрачный)
+            dst[i]     = this.channels.red   ? src[i]     : 0;
+            dst[i + 1] = this.channels.green ? src[i + 1] : 0;
+            dst[i + 2] = this.channels.blue  ? src[i + 2] : 0;
+            dst[i + 3] = this.channels.alpha ? src[i + 3] : 255;
         }
 
         return result;
     }
+
 
     /**
      * Генерирует превью отдельного канала в градациях серого
