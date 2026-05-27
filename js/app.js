@@ -6,6 +6,7 @@ import { PipetteTool } from './pipette.js';
 import { LevelsTool } from './levels.js';  
 import { ResizeTool } from './resize.js'; 
 import { Interpolation } from './interpolation.js';
+import { FilterTool } from './filterTool.js';
 
 class ImageProcessorApp {
     constructor() {
@@ -24,6 +25,7 @@ class ImageProcessorApp {
         this.pipetteTool = null; // Инициализируем после загрузки изображения
         this.levelsTool = null;
         this.resizeTool = null;
+        this.filterTool = null;
 
         this.initElements();
         this.bindEvents();
@@ -57,6 +59,8 @@ class ImageProcessorApp {
         this.levelsBtn = document.getElementById('levelsBtn');
         
         this.resizeBtn = document.getElementById('resizeBtn');
+
+        this.filterBtn = document.getElementById('filterBtn');
 
         // Панель информации пипетки
         this.infoCoords = document.getElementById('infoCoords');
@@ -106,6 +110,8 @@ class ImageProcessorApp {
         this.levelsBtn.addEventListener('click', () => this.openLevels());
 
         this.resizeBtn.addEventListener('click', () => this.openResize());
+
+        this.filterBtn.addEventListener('click', () => this.openFilter());
 
         this.zoomSlider.addEventListener('input', () => {
             const value = parseInt(this.zoomSlider.value, 10);
@@ -260,7 +266,7 @@ class ImageProcessorApp {
         this.levelsTool.open();
     }
 
-        /**
+    /**
      * Открывает модальное окно "Изменение размера"
      */
     openResize() {
@@ -271,6 +277,19 @@ class ImageProcessorApp {
         }
         
         this.resizeTool.open();
+    }
+
+    /**
+     * Открывает диалоговое окно "Фильтры"
+     */
+    openFilter() {
+        if (!this.canvas.width) return;
+
+        if (!this.filterTool) {
+            this.filterTool = new FilterTool(this);
+        }
+
+        this.filterTool.open();
     }
 
     /**
@@ -353,8 +372,8 @@ class ImageProcessorApp {
             this.showNotification(`Изображение загружено (${this.canvas.width}×${this.canvas.height})`, 'success');
             
             this.levelsBtn.disabled = false;
-
             this.resizeBtn.disabled = false;
+            this.filterBtn.disabled = false;
 
         } catch (error) {
             console.error('Ошибка загрузки:', error);
@@ -425,10 +444,9 @@ class ImageProcessorApp {
         this.currentImage = img;
         this.currentFormat = ImageUtils.getFileExtension(file.name);
         this.downloadBtn.disabled = false;
-
         this.levelsBtn.disabled = false;
-
         this.resizeBtn.disabled = false;
+        this.filterBtn.disabled = false;
         
         const hasAlpha = this.imageHasAlpha(tempCtx, img.width, img.height);
         const extension = this.currentFormat.toLowerCase();
@@ -463,10 +481,9 @@ class ImageProcessorApp {
             this.currentImage = imageData;
             this.currentFormat = 'gb7';
             this.downloadBtn.disabled = false;
-
             this.levelsBtn.disabled = false;
-
             this.resizeBtn.disabled = false;
+            this.filterBtn.disabled = false;
             
             const depth = decoded.hasMask ? '7-bit + mask' : '7-bit grayscale';
             this.updateStatus(decoded.width, decoded.height, depth);
