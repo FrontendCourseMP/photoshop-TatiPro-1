@@ -235,7 +235,7 @@ class ImageProcessorApp {
      */
     togglePipette() {
         if (!this.pipetteTool) {
-            this.pipetteTool = new PipetteTool(this.canvas, this.ctx);
+            this.pipetteTool = new PipetteTool(this.canvas, this.channelManager);
             this.pipetteTool.onColorPick = (data) => this.updateInfoPanel(data);
         }
         
