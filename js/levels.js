@@ -31,6 +31,11 @@ export class LevelsTool {
         // Инициализация
         this.initElements();
         this.bindEvents();
+
+        // Для throttling предпросмотра
+        this._previewRafId = null;
+        this._previewPending = false;
+
         this.histogram = new Histogram(this.histogramCanvas);
     }
 
@@ -93,7 +98,7 @@ export class LevelsTool {
         // Предпросмотр
         this.previewCheckbox.addEventListener('change', () => {
             if (this.previewCheckbox.checked) {
-                this.updatePreview();
+                this.requestPreviewUpdate();
             } else {
                 this.restoreOriginal();
             }
@@ -132,26 +137,53 @@ export class LevelsTool {
         });
     }
 
-    /**
-     * Связывает слайдер гаммы с полем ввода (особый случай — значение 0.1-9.9)
+        /**
+     * Связывает слайдер гаммы с полем ввода (нелинейная шкала как в Photoshop)
+     * Центр слайдера (50) = гамма 1.0
+     * Крайние положения: 0 = 9.9, 100 = 0.1
      */
     bindSliderGamma(slider, input) {
         slider.addEventListener('input', () => {
-            const gamma = parseInt(slider.value) / 100;
+            const gamma = this._sliderToGamma(parseInt(slider.value));
             input.value = gamma.toFixed(2);
             this.getCurrentSettings().gamma = gamma;
-            if (this.previewCheckbox.checked) this.updatePreview();
+            if (this.previewCheckbox.checked) this.requestPreviewUpdate();
         });
-        
+
         input.addEventListener('change', () => {
             let gamma = parseFloat(input.value);
             gamma = Math.max(0.1, Math.min(9.9, gamma));
             input.value = gamma.toFixed(2);
-            slider.value = Math.round(gamma * 100);
+            slider.value = Math.round(this._gammaToSlider(gamma));
             this.getCurrentSettings().gamma = gamma;
-            if (this.previewCheckbox.checked) this.updatePreview();
+            if (this.previewCheckbox.checked) this.requestPreviewUpdate();
         });
     }
+
+    /**
+     * Преобразует положение слайдера в значение гаммы
+     * @param {number} sliderValue - значение слайдера (0-100)
+     * @returns {number} - гамма (0.1-9.9)
+     */
+    _sliderToGamma(sliderValue) {
+        const relPos = sliderValue / 100;
+        if (relPos <= 0.01) return 9.9;
+        if (relPos >= 0.99) return 0.1;
+        const gamma = Math.log(relPos) / Math.log(0.5);
+        return Math.round(gamma * 100) / 100;
+    }
+
+    /**
+     * Преобразует значение гаммы в положение слайдера
+     * @param {number} gamma - гамма (0.1-9.9)
+     * @returns {number} - положение слайдера (0-100)
+     */
+    _gammaToSlider(gamma) {
+        const clamped = Math.max(0.1, Math.min(9.9, gamma));
+        return Math.pow(0.5, clamped) * 100;
+    }
+
+ 
 
     /**
      * Обновляет настройку при движении слайдера
@@ -172,7 +204,7 @@ export class LevelsTool {
             this.whiteInput.value = settings.white;
         }
         
-        if (this.previewCheckbox.checked) this.updatePreview();
+        if (this.previewCheckbox.checked) this.requestPreviewUpdate();
     }
 
     /**
@@ -291,6 +323,21 @@ export class LevelsTool {
         this.app.ctx.putImageData(correctedData, 0, 0);
     }
 
+     /**
+     * Запрашивает обновление предпросмотра через requestAnimationFrame
+     * Предотвращает множественные перерисовки за один кадр
+     */
+    requestPreviewUpdate() {
+        this._previewPending = true;
+        if (this._previewRafId !== null) return;
+        this._previewRafId = requestAnimationFrame(() => {
+            this._previewRafId = null;
+            if (!this._previewPending) return;
+            this._previewPending = false;
+            this.updatePreview();
+        });
+    }
+
     /**
      * Восстанавливает оригинальное изображение на холсте
      */
@@ -307,7 +354,7 @@ export class LevelsTool {
         const settings = this.getCurrentSettings();
         this.updateSlidersUI(settings);
         this.updateHistogram();
-        if (this.previewCheckbox.checked) this.updatePreview();
+        if (this.previewCheckbox.checked) this.requestPreviewUpdate();
     }
 
     /**
