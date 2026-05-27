@@ -75,6 +75,13 @@
             <div class="tool-separator"></div>
 
             <div class="tool-group">
+                <button id="filterBtn" class="btn btn-dark" title="Фильтры" disabled>
+                    <span class="btn-icon">🔧</span>
+                    <span class="btn-text">Фильтры</span>
+                </button>
+            </div>
+
+            <div class="tool-group">
                 <button id="fitBtn" class="btn btn-dark" title="Вписать в окно">
                     <span class="btn-icon">🔍</span>
                     <span class="btn-text">По размеру</span>
@@ -354,6 +361,97 @@
         <div class="dialog-footer">
             <button id="cancelResizeBtn" class="btn btn-dark">Отмена</button>
             <button id="applyResizeBtn" class="btn btn-primary-action">Применить</button>
+        </div>
+    </dialog>
+
+        <!-- Диалоговое окно "Фильтры" -->
+    <dialog id="filterDialog" class="levels-dialog">
+        <div class="dialog-header">
+            <h2 class="dialog-title">Фильтры (Свёртка)</h2>
+            <button id="closeFilterBtn" class="dialog-close-btn" title="Закрыть">✕</button>
+        </div>
+        
+        <div class="dialog-body">
+            <!-- Выбор пресета -->
+            <div class="levels-channel-select">
+                <label class="levels-label">Пресет:</label>
+                <select id="filterPreset" class="select-dark">
+                    <option value="identity">Тождественное отображение</option>
+                    <option value="sharpen">Повышение резкости</option>
+                    <option value="gauss3">Фильтр Гаусса (3×3)</option>
+                    <option value="boxBlur">Прямоугольное размытие</option>
+                    <option value="prewittX">Оператор Прюитта (X)</option>
+                    <option value="prewittY">Оператор Прюитта (Y)</option>
+                </select>
+            </div>
+
+            <!-- Сетка 3x3 -->
+            <div class="kernel-grid">
+                <div class="kernel-row">
+                    <input type="number" class="kernel-cell" id="k00" value="0" step="any">
+                    <input type="number" class="kernel-cell" id="k01" value="0" step="any">
+                    <input type="number" class="kernel-cell" id="k02" value="0" step="any">
+                </div>
+                <div class="kernel-row">
+                    <input type="number" class="kernel-cell" id="k10" value="0" step="any">
+                    <input type="number" class="kernel-cell" id="k11" value="1" step="any">
+                    <input type="number" class="kernel-cell" id="k12" value="0" step="any">
+                </div>
+                <div class="kernel-row">
+                    <input type="number" class="kernel-cell" id="k20" value="0" step="any">
+                    <input type="number" class="kernel-cell" id="k21" value="0" step="any">
+                    <input type="number" class="kernel-cell" id="k22" value="0" step="any">
+                </div>
+            </div>
+
+            <!-- Выбор каналов -->
+            <div class="levels-channel-select">
+                <label class="levels-label">Каналы:</label>
+                <div class="channel-checkboxes">
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="filter-channel" data-channel="red" checked>
+                        R
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="filter-channel" data-channel="green" checked>
+                        G
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="filter-channel" data-channel="blue" checked>
+                        B
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="filter-channel" data-channel="alpha">
+                        A
+                    </label>
+                </div>
+            </div>
+
+            <!-- Edge handling -->
+            <div class="levels-channel-select">
+                <label class="levels-label">Края:</label>
+                <select id="edgeMode" class="select-dark">
+                    <option value="black">Чёрный</option>
+                    <option value="white">Белый</option>
+                    <option value="clamp">Копирование</option>
+                </select>
+            </div>
+
+            <!-- Предпросмотр -->
+            <div class="levels-preview-option">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="filterPreview" checked>
+                    Предпросмотр
+                </label>
+            </div>
+        </div>
+        
+        <div class="dialog-footer">
+            <button id="resetFilterBtn" class="btn btn-dark">Сброс</button>
+            <div class="dialog-footer-right">
+                <button id="cancelFilterBtn" class="btn btn-dark">Отмена</button>
+                <button id="applyFilterBtn" class="btn btn-primary-action">Применить</button>
+            </div>
         </div>
     </dialog>
 
