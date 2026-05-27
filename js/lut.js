@@ -1,9 +1,6 @@
 /**
  * Модуль таблиц подстановки (Look-Up Tables)
- * Используется для быстрого применения градационной коррекции
- * Поддерживает композицию: Master применяется ко всем цветовым каналам,
- * затем поверх применяются настройки конкретного канала.
- * Альфа-канал не проходит через Master.
+ * Композиция: Master → per-channel, Alpha независимо
  */
 export class LUT {
     constructor() {
@@ -14,7 +11,6 @@ export class LUT {
             alpha: new Uint8Array(256)
         };
 
-        // Храним параметры для каждого канала отдельно
         this.params = {
             master: { black: 0, white: 255, gamma: 1.0 },
             red:    { black: 0, white: 255, gamma: 1.0 },
@@ -26,9 +22,6 @@ export class LUT {
         this.reset();
     }
 
-    /**
-     * Сбрасывает все таблицы в исходное состояние (без изменений)
-     */
     reset() {
         Object.keys(this.params).forEach(ch => {
             this.params[ch] = { black: 0, white: 255, gamma: 1.0 };
@@ -36,13 +29,6 @@ export class LUT {
         this._rebuild();
     }
 
-    /**
-     * Сохраняет параметры для канала и пересобирает все таблицы
-     * @param {string} channel - 'master', 'red', 'green', 'blue', 'alpha'
-     * @param {number} blackPoint - точка чёрного (0-254)
-     * @param {number} whitePoint - точка белого (1-255)
-     * @param {number} gamma - гамма-коррекция (0.1-9.9)
-     */
     setParams(channel, blackPoint, whitePoint, gamma) {
         this.params[channel] = {
             black: blackPoint,
@@ -52,11 +38,6 @@ export class LUT {
         this._rebuild();
     }
 
-    /**
-     * Внутренний метод: пересобирает все 4 таблицы из текущих params.
-     * Композиция: для red/green/blue сначала применяется master, потом per-channel.
-     * Alpha не проходит через master.
-     */
     _rebuild() {
         const masterLut = this._buildSingleLut(this.params.master);
         const redLut    = this._buildSingleLut(this.params.red);
@@ -64,20 +45,14 @@ export class LUT {
         const blueLut   = this._buildSingleLut(this.params.blue);
         const alphaLut  = this._buildSingleLut(this.params.alpha);
 
-        // Композиция: out[i] = perChannel[master[i]]
         for (let i = 0; i < 256; i++) {
             this.tables.red[i]   = redLut[masterLut[i]];
             this.tables.green[i] = greenLut[masterLut[i]];
             this.tables.blue[i]  = blueLut[masterLut[i]];
-            this.tables.alpha[i] = alphaLut[i]; // Alpha не идёт через master
+            this.tables.alpha[i] = alphaLut[i];
         }
     }
 
-    /**
-     * Строит одну таблицу подстановки из параметров {black, white, gamma}
-     * @param {{black: number, white: number, gamma: number}} params
-     * @returns {Uint8Array}
-     */
     _buildSingleLut({ black, white, gamma }) {
         const table = new Uint8Array(256);
         const range = white - black;
@@ -99,11 +74,6 @@ export class LUT {
         return table;
     }
 
-    /**
-     * Применяет таблицы подстановки к ImageData
-     * @param {ImageData} imageData - исходные данные изображения
-     * @returns {ImageData} - новое изображение с применённой коррекцией
-     */
     apply(imageData) {
         const result = new ImageData(
             new Uint8ClampedArray(imageData.data.length),
