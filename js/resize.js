@@ -1,4 +1,5 @@
 import { Interpolation } from './interpolation.js';
+import { ImageUtils } from './utils.js';
 
 /**
  * Модуль управления инструментом "Изменение размера"
@@ -274,6 +275,10 @@ export class ResizeTool {
         this.app.canvas.height = newHeight;
         this.app.ctx.putImageData(scaledData, 0, 0);
         
+        const channelCount = ImageUtils.detectChannelCount(scaledData);
+        this.app.channelManager.setOriginalImage(scaledData, channelCount);
+        this.app.updateChannelPreviews();
+
         // Обновляем статус
         this.app.updateStatus(newWidth, newHeight, this.app.statusDepth.textContent);
         

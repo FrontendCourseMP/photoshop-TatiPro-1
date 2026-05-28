@@ -75,6 +75,7 @@ export class FilterTool {
 
         this.initElements();
         this.bindEvents();
+        this._previewRafId = null;
     }
 
     initElements() {
@@ -106,7 +107,7 @@ export class FilterTool {
         // Выбор пресета
         this.filterPreset.addEventListener('change', () => {
             this.loadPreset(this.filterPreset.value);
-            if (this.filterPreview.checked) this.updatePreview();
+            if (this.filterPreview.checked) this.requestPreviewUpdate();
         });
 
         // Изменение ячеек ядра
@@ -114,7 +115,7 @@ export class FilterTool {
             for (let x = 0; x < 3; x++) {
                 this.kernelCells[y][x].addEventListener('input', () => {
                     this.readKernelFromInputs();
-                    if (this.filterPreview.checked) this.updatePreview();
+                    if (this.filterPreview.checked) this.requestPreviewUpdate();
                 });
             }
         }
@@ -209,16 +210,16 @@ export class FilterTool {
         this.dialog.showModal();
     }
 
-    /**
-     * Обновляет предпросмотр
+        /**
+     * Обновляет предпросмотр асинхронно
      */
-    updatePreview() {
+    async updatePreview() {
         if (!this.originalImageData) return;
 
         const channels = this.getSelectedChannels();
         const edgeMode = this.edgeMode.value;
 
-        const result = Convolution.apply(
+        const result = await Convolution.applyAsync(
             this.originalImageData,
             this.kernel,
             channels,
@@ -227,6 +228,21 @@ export class FilterTool {
 
         this.app.ctx.putImageData(result, 0, 0);
     }
+
+    /**
+     * Применяет изменения асинхронно
+     */
+    async apply() {
+        this.readKernelFromInputs();
+        await this.updatePreview();
+        const newImageData = this.app.ctx.getImageData(0, 0, this.app.canvas.width, this.app.canvas.height);
+        const channelCount = this.app.channelManager.channelCount || 4;
+        this.app.channelManager.setOriginalImage(newImageData, channelCount);
+        this.app.updateChannelPreviews();
+        this.dialog.close();
+        this.app.showNotification('Фильтр применён', 'success');
+    }
+
 
     /**
      * Восстанавливает оригинал
@@ -247,20 +263,19 @@ export class FilterTool {
     }
 
     /**
-     * Применяет изменения
-     */
-    apply() {
-        this.readKernelFromInputs();
-        this.updatePreview();
-        this.dialog.close();
-        this.app.showNotification('Фильтр применён', 'success');
-    }
-
-    /**
      * Отменяет изменения
      */
     cancel() {
         this.restoreOriginal();
         this.dialog.close();
     }
+
+        requestPreviewUpdate() {
+        if (this._previewRafId !== null) return;
+        this._previewRafId = requestAnimationFrame(async () => {
+            this._previewRafId = null;
+            await this.updatePreview();
+        });
+    }
 }
+
