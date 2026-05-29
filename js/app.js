@@ -80,6 +80,9 @@ class ImageProcessorApp {
 
         this.zoomSlider = document.getElementById('zoomSlider');
         this.zoomInput = document.getElementById('zoomInput');
+
+        this.channelsPanelToggle = document.getElementById('channelsPanelToggle');
+        this.channelsPanelContent = document.getElementById('channelsPanelContent');
     }
 
 
@@ -126,6 +129,16 @@ class ImageProcessorApp {
             this.zoomInput.value = value;
             this.zoomSlider.value = value;
             this.setZoom(value);
+        });
+
+        this.channelsPanelToggle.addEventListener('click', () => {
+            if (this.channelsPanelContent.style.display === 'none') {
+                this.channelsPanelContent.style.display = '';
+                this.channelsPanelToggle.textContent = '▸';
+            } else {
+                this.channelsPanelContent.style.display = 'none';
+                this.channelsPanelToggle.textContent = '▾';
+            }
         });
     }
 

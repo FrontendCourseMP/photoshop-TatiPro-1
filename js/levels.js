@@ -265,6 +265,10 @@ export class LevelsTool {
     apply() {
         this.saveCurrentSettings();
         this.updatePreview();
+        const newImageData = this.app.ctx.getImageData(0, 0, this.app.canvas.width, this.app.canvas.height);
+        const channelCount = this.app.channelManager.channelCount || 4;
+        this.app.channelManager.setOriginalImage(newImageData, channelCount);
+        this.app.updateChannelPreviews();
         this.dialog.close();
         this.app.showNotification('Уровни применены', 'success');
     }
