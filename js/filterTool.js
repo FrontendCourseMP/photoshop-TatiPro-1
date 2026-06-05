@@ -128,7 +128,7 @@ export class FilterTool {
         // Предпросмотр
         this.filterPreview.addEventListener('change', () => {
             if (this.filterPreview.checked) {
-                this.updatePreview();
+                this.requestPreviewUpdate();
             } else {
                 this.restoreOriginal();
             }
@@ -213,13 +213,16 @@ export class FilterTool {
         /**
      * Обновляет предпросмотр асинхронно
      */
-    async updatePreview() {
+        /**
+     * Обновляет предпросмотр (синхронно, быстро)
+     */
+    updatePreview() {
         if (!this.originalImageData) return;
 
         const channels = this.getSelectedChannels();
         const edgeMode = this.edgeMode.value;
 
-        const result = await Convolution.applyAsync(
+        const result = Convolution.applySync(
             this.originalImageData,
             this.kernel,
             channels,
@@ -229,19 +232,35 @@ export class FilterTool {
         this.app.ctx.putImageData(result, 0, 0);
     }
 
-    /**
+        /**
      * Применяет изменения асинхронно
      */
     async apply() {
         this.readKernelFromInputs();
-        await this.updatePreview();
+        const channels = this.getSelectedChannels();
+        const edgeMode = this.edgeMode.value;
+        
+        const result = await Convolution.applyAsync(
+            this.originalImageData,
+            this.kernel,
+            channels,
+            edgeMode
+        );
+        
+        this.app.ctx.putImageData(result, 0, 0);
+        this.app.currentImage = result;
+        
         const newImageData = this.app.ctx.getImageData(0, 0, this.app.canvas.width, this.app.canvas.height);
         const channelCount = this.app.channelManager.channelCount || 4;
         this.app.channelManager.setOriginalImage(newImageData, channelCount);
         this.app.updateChannelPreviews();
+        
         this.dialog.close();
         this.app.showNotification('Фильтр применён', 'success');
     }
+
+
+
 
 
     /**
@@ -270,11 +289,11 @@ export class FilterTool {
         this.dialog.close();
     }
 
-        requestPreviewUpdate() {
+    requestPreviewUpdate() {
         if (this._previewRafId !== null) return;
         this._previewRafId = requestAnimationFrame(async () => {
             this._previewRafId = null;
-            await this.updatePreview();
+            this.updatePreview();
         });
     }
 }

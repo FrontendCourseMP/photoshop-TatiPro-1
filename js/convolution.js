@@ -11,6 +11,46 @@ export class Convolution {
         };
     }
 
+        /**
+     * Синхронная свёртка — быстро, для предпросмотра
+     */
+    static applySync(sourceData, kernel, channels, edgeMode = 'clamp') {
+        const width = sourceData.width;
+        const height = sourceData.height;
+        const src = sourceData.data;
+        const result = new ImageData(width, height);
+        const dst = result.data;
+
+        const kernelSum = kernel[0][0] + kernel[0][1] + kernel[0][2] +
+                          kernel[1][0] + kernel[1][1] + kernel[1][2] +
+                          kernel[2][0] + kernel[2][1] + kernel[2][2];
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const dstIndex = (y * width + x) * 4;
+                for (let c = 0; c < 4; c++) {
+                    const channelName = ['red', 'green', 'blue', 'alpha'][c];
+                    if (!channels[channelName]) {
+                        dst[dstIndex + c] = src[dstIndex + c];
+                        continue;
+                    }
+                    let sum = 0;
+                    for (let ky = -1; ky <= 1; ky++) {
+                        for (let kx = -1; kx <= 1; kx++) {
+                            const pixelValue = this._getPixel(src, width, height, x + kx, y + ky, c, edgeMode);
+                            sum += pixelValue * kernel[ky + 1][kx + 1];
+                        }
+                    }
+                    if (kernelSum !== 0) sum = sum / kernelSum;
+                    dst[dstIndex + c] = Math.max(0, Math.min(255, Math.round(sum)));
+                }
+            }
+        }
+        return result;
+    }
+
+
+
     /**
      * Применяет свёртку асинхронно, разбивая на чанки по строкам
      * @param {ImageData} sourceData
