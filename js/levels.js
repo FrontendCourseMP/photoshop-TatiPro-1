@@ -115,11 +115,13 @@ export class LevelsTool {
      */
     bindSliderGamma(slider, input) {
         slider.addEventListener('input', () => {
-            const gamma = this._sliderToGamma(parseInt(slider.value));
+            const sliderValue = parseInt(slider.value);
+            const gamma = sliderValue / 100;  // 10-990 → 0.1-9.9
             input.value = gamma.toFixed(2);
             this.getCurrentSettings().gamma = gamma;
             if (this.previewCheckbox.checked) this.requestPreviewUpdate();
         });
+
 
         input.addEventListener('change', () => {
             let gamma = parseFloat(input.value);
@@ -186,7 +188,7 @@ export class LevelsTool {
         this.blackInput.value = settings.black;
         this.whiteSlider.value = settings.white;
         this.whiteInput.value = settings.white;
-        this.gammaSlider.value = Math.round(this._gammaToSlider(settings.gamma));
+        this.gammaSlider.value = Math.round(settings.gamma * 100);
         this.gammaInput.value = settings.gamma.toFixed(2);
     }
 
@@ -213,6 +215,29 @@ export class LevelsTool {
         this.updateSlidersUI(settings);
         this.updateHistogram();
         this.previewCheckbox.checked = true;
+
+         // Скрываем каналы которых нет
+        const channelCount = this.app.channelManager.channelCount || 4;
+        const alphaOption = this.channelSelect.querySelector('option[value="alpha"]');
+        const redOption = this.channelSelect.querySelector('option[value="red"]');
+        const greenOption = this.channelSelect.querySelector('option[value="green"]');
+        const blueOption = this.channelSelect.querySelector('option[value="blue"]');
+        
+        if (channelCount === 1 || channelCount === 2) {
+            redOption.textContent = 'Серый';
+            greenOption.style.display = 'none';
+            blueOption.style.display = 'none';
+        } else {
+            redOption.textContent = 'Красный';
+            greenOption.style.display = '';
+            blueOption.style.display = '';
+        }
+        
+        if (channelCount === 2 || channelCount === 4) {
+            alphaOption.style.display = '';
+        } else {
+            alphaOption.style.display = 'none';
+        }
     }
 
     resetAllSettings() {
@@ -277,4 +302,5 @@ export class LevelsTool {
         this.restoreOriginal();
         this.dialog.close();
     }
+
 }

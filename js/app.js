@@ -32,8 +32,8 @@ class ImageProcessorApp {
         this.setupDragAndDrop();
         this.setupChannelsPanel();
 
-
-
+        this.originalCanvasWidth = 0;
+        this.originalCanvasHeight = 0;
 
     }
 
@@ -308,19 +308,35 @@ class ImageProcessorApp {
     /**
      * Обновляет отображение масштаба в статусной строке
      */
+
     setZoom(percentValue) {
-        if (!this.canvas.width || !this.canvas.height) return;
+        if (!this.originalCanvasWidth || !this.originalCanvasHeight) return;
         
         const scale = percentValue / 100;
-        this.canvas.style.width = Math.round(this.canvas.width * scale) + 'px';
-        this.canvas.style.height = Math.round(this.canvas.height * scale) + 'px';
+        const newWidth = Math.round(this.originalCanvasWidth * scale);
+        const newHeight = Math.round(this.originalCanvasHeight * scale);
+        
+        this.canvas.style.width = newWidth + 'px';
+        this.canvas.style.height = newHeight + 'px';
+        
+        const wrapper = this.canvasWrapper;
+        
+        // Центрируем canvas
+        const left = Math.max(0, (wrapper.clientWidth - newWidth) / 2);
+        const top = Math.max(0, (wrapper.clientHeight - newHeight) / 2);
+        this.canvas.style.left = left + 'px';
+        this.canvas.style.top = top + 'px';
+        
+        // Скролл только если canvas больше wrapper
+        wrapper.scrollLeft = Math.max(0, (newWidth - wrapper.clientWidth) / 2);
+        wrapper.scrollTop = Math.max(0, (newHeight - wrapper.clientHeight) / 2);
         
         if (this.zoomLevelEl) {
             this.zoomLevelEl.textContent = percentValue + '%';
         }
     }
 
-
+ 
 
     /**
      * Обновляет панель информации о пикселе
@@ -434,6 +450,12 @@ class ImageProcessorApp {
 
         alphaEl.style.display = hasAlpha ? '' : 'none';
         document.querySelector('[data-channel="alpha"]').checked = hasAlpha;
+
+        // Синхронизируем channelManager.channels с чекбоксами
+        this.channelManager.channels.red = document.querySelector('[data-channel="red"]').checked;
+        this.channelManager.channels.green = document.querySelector('[data-channel="green"]').checked;
+        this.channelManager.channels.blue = document.querySelector('[data-channel="blue"]').checked;
+        this.channelManager.channels.alpha = document.querySelector('[data-channel="alpha"]').checked;
     }
 
  
@@ -449,6 +471,8 @@ class ImageProcessorApp {
         
         this.canvas.width = img.width;
         this.canvas.height = img.height;
+        this.originalCanvasWidth = img.width;
+        this.originalCanvasHeight = img.height;
         this.ctx.drawImage(img, 0, 0);
         
         this.canvas.style.display = 'block';
@@ -486,6 +510,8 @@ class ImageProcessorApp {
             
             this.canvas.width = decoded.width;
             this.canvas.height = decoded.height;
+            this.originalCanvasWidth = decoded.width;
+            this.originalCanvasHeight = decoded.height;
             this.ctx.putImageData(imageData, 0, 0);
             
             this.canvas.style.display = 'block';
@@ -553,14 +579,14 @@ class ImageProcessorApp {
     }
 
     fitToScreen() {
-        if (!this.canvas.width || !this.canvas.height) return;
+        if (!this.originalCanvasWidth || !this.originalCanvasHeight) return;
         
         const wrapper = this.canvasWrapper;
         const wrapperWidth = wrapper.clientWidth - 100;
         const wrapperHeight = wrapper.clientHeight - 100;
         
-        const scaleX = wrapperWidth / this.canvas.width;
-        const scaleY = wrapperHeight / this.canvas.height;
+        const scaleX = wrapperWidth / this.originalCanvasWidth;
+        const scaleY = wrapperHeight / this.originalCanvasHeight;
         let scale = Math.min(scaleX, scaleY, 3.0);
         scale = Math.max(scale, 0.12);
         
@@ -572,13 +598,13 @@ class ImageProcessorApp {
     }
 
     showActualSize() {
-        if (!this.currentImage) return;
+        if (!this.originalCanvasWidth || !this.originalCanvasHeight) return;
+        
         this.setZoom(100);
+        
         if (this.zoomSlider) this.zoomSlider.value = 100;
         if (this.zoomInput) this.zoomInput.value = 100;
     }
-
-
 
     handleResize() {
         // Автоматическая адаптация через CSS

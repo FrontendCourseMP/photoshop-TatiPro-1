@@ -115,8 +115,14 @@ export class FilterTool {
             for (let x = 0; x < 3; x++) {
                 this.kernelCells[y][x].addEventListener('input', () => {
                     this.readKernelFromInputs();
+                    // Автопереключение на пользовательский режим
+                    if (this.filterPreset.value !== 'custom') {
+                        // Добавим custom preset
+                        this.filterPreset.value = 'custom';
+                    }
                     if (this.filterPreview.checked) this.requestPreviewUpdate();
                 });
+                
             }
         }
 

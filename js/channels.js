@@ -24,8 +24,8 @@ export class ChannelManager {
      * @param {ImageData} imageData - пиксельные данные с canvas
      * @param {number} channelCount - количество каналов (1, 2, 3, 4)
      */
+
     setOriginalImage(imageData, channelCount = 4) {
-        // Создаём глубокую копию данных, чтобы никогда не менять оригинал
         this.originalImageData = new ImageData(
             new Uint8ClampedArray(imageData.data),
             imageData.width,
@@ -34,12 +34,18 @@ export class ChannelManager {
         
         this.channelCount = channelCount;
 
-        // Включаем только те каналы, которые есть в изображении
-        this.channels.red = channelCount >= 3;
-        this.channels.green = channelCount >= 3;
-        this.channels.blue = channelCount >= 3;
-        this.channels.alpha = (channelCount === 2 || channelCount === 4);
+        const isGray = channelCount === 1 || channelCount === 2;
+        const hasRGB = channelCount >= 3;
+        const hasAlpha = channelCount === 2 || channelCount === 4;
+
+        // Для grayscale включаем red как серый
+        this.channels.red = isGray || hasRGB;
+        this.channels.green = hasRGB;
+        this.channels.blue = hasRGB;
+        this.channels.alpha = hasAlpha;
     }
+
+
 
     /**
      * Переключает состояние канала (вкл/выкл)
@@ -59,7 +65,7 @@ export class ChannelManager {
      * @returns {ImageData|null} - новое изображение с учётом состояния каналов
      */
 
-        applyChannels() {
+    applyChannels() {
         if (!this.originalImageData) return null;
 
         const width = this.originalImageData.width;
@@ -68,31 +74,43 @@ export class ChannelManager {
         const src = this.originalImageData.data;
         const dst = result.data;
 
-        // Особый случай: только альфа включена → показываем как маску (grayscale)
-        const onlyAlpha = !this.channels.red && !this.channels.green
-                       && !this.channels.blue && this.channels.alpha;
+        const isGray = this.channelCount === 1 || this.channelCount === 2;
         
-        if (onlyAlpha) {
-            for (let i = 0; i < src.length; i += 4) {
-                const a = src[i + 3];
-                dst[i]     = a;
-                dst[i + 1] = a;
-                dst[i + 2] = a;
-                dst[i + 3] = 255;
-            }
-            return result;
-        }
-
-        // Обычный путь: применяем включённые каналы
         for (let i = 0; i < src.length; i += 4) {
-            dst[i]     = this.channels.red   ? src[i]     : 0;
-            dst[i + 1] = this.channels.green ? src[i + 1] : 0;
-            dst[i + 2] = this.channels.blue  ? src[i + 2] : 0;
-            dst[i + 3] = this.channels.alpha ? src[i + 3] : 255;
+            if (isGray) {
+                // Серый — из R канала (src[i])
+                const grayValue = this.channels.red ? src[i] : 0;
+                dst[i]     = grayValue;
+                dst[i + 1] = grayValue;
+                dst[i + 2] = grayValue;
+                
+                // Альфа: если включена — берём оригинальную, если выключена — 255
+                if (this.channels.alpha && this.channelCount === 2) {
+                    dst[i + 3] = src[i + 3];
+                } else {
+                    dst[i + 3] = 255;
+                }
+            } else {
+                // Цветное
+                dst[i]     = this.channels.red   ? src[i]     : 0;
+                dst[i + 1] = this.channels.green ? src[i + 1] : 0;
+                dst[i + 2] = this.channels.blue  ? src[i + 2] : 0;
+                
+                // Особый случай: только альфа → маска
+                if (!this.channels.red && !this.channels.green && !this.channels.blue && this.channels.alpha) {
+                    const a = src[i + 3];
+                    dst[i]     = a;
+                    dst[i + 1] = a;
+                    dst[i + 2] = a;
+                }
+                
+                dst[i + 3] = this.channels.alpha ? src[i + 3] : 255;
+            }
         }
 
         return result;
     }
+
 
 
     /**

@@ -274,6 +274,10 @@ export class ResizeTool {
         this.app.canvas.width = newWidth;
         this.app.canvas.height = newHeight;
         this.app.ctx.putImageData(scaledData, 0, 0);
+
+                
+        this.app.originalCanvasWidth = newWidth;
+        this.app.originalCanvasHeight = newHeight;
         
         const channelCount = ImageUtils.detectChannelCount(scaledData);
         this.app.channelManager.setOriginalImage(scaledData, channelCount);
@@ -283,7 +287,6 @@ export class ResizeTool {
         this.app.updateStatus(newWidth, newHeight, this.app.statusDepth.textContent);
         
         // Обновляем зум
-        this.app.updateZoomDisplay();
         this.app.fitToScreen();
         
         // Закрываем диалог
