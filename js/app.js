@@ -62,13 +62,18 @@ class ImageProcessorApp {
 
         this.filterBtn = document.getElementById('filterBtn');
 
-        // Панель информации пипетки
-        this.infoCoords = document.getElementById('infoCoords');
-        this.infoRGB = document.getElementById('infoRGB');
+                this.infoX = document.getElementById('infoX');
+        this.infoY = document.getElementById('infoY');
+        this.infoR = document.getElementById('infoR');
+        this.infoG = document.getElementById('infoG');
+        this.infoB = document.getElementById('infoB');
+        this.infoA = document.getElementById('infoA');
         this.infoHEX = document.getElementById('infoHEX');
-        this.infoLAB = document.getElementById('infoLAB');
+        this.infoL = document.getElementById('infoL');
+        this.infoA_star = document.getElementById('infoA_star');
+        this.infoB_star = document.getElementById('infoB_star');
         this.colorPreview = document.getElementById('colorPreview');
-        
+
         // Чекбоксы каналов
         this.channelCheckboxes = document.querySelectorAll('.channel-checkbox');
         
@@ -226,10 +231,16 @@ class ImageProcessorApp {
     updateChannelPreviews() {
         if (!this.channelManager.originalImageData) return;
         
-        const previewWidth = 60;
-        const previewHeight = 40;
+        const srcWidth = this.channelManager.originalImageData.width;
+        const srcHeight = this.channelManager.originalImageData.height;
         
-        // Для каждого канала создаём превью и отображаем в соответствующем canvas
+        // Сохраняем пропорции: max 60×40
+        const maxW = 60;
+        const maxH = 40;
+        const ratio = Math.min(maxW / srcWidth, maxH / srcHeight);
+        const previewWidth = Math.round(srcWidth * ratio);
+        const previewHeight = Math.round(srcHeight * ratio);
+        
         const channels = ['red', 'green', 'blue', 'alpha'];
         const previews = [this.previewRed, this.previewGreen, this.previewBlue, this.previewAlpha];
         
@@ -248,6 +259,7 @@ class ImageProcessorApp {
             }
         });
     }
+
 
     /**
      * Включает/выключает инструмент пипетка
@@ -342,20 +354,20 @@ class ImageProcessorApp {
      * Обновляет панель информации о пикселе
      */
     updateInfoPanel(data) {
-        this.infoCoords.textContent = `X: ${data.x}, Y: ${data.y}`;
-        this.infoRGB.textContent = `R: ${data.r}, G: ${data.g}, B: ${data.b}`;
+        this.infoX.textContent = data.x;
+        this.infoY.textContent = data.y;
+        this.infoR.textContent = data.r;
+        this.infoG.textContent = data.g;
+        this.infoB.textContent = data.b;
+        this.infoA.textContent = data.a;
         this.infoHEX.textContent = data.hex;
-
-        this.infoAlpha = this.infoAlpha || document.getElementById('infoAlpha');
-        if (this.infoAlpha) {
-            this.infoAlpha.textContent = `A: ${data.a}`;
-        }
+        this.infoL.textContent = data.lab.L;
+        this.infoA_star.textContent = data.lab.a;
+        this.infoB_star.textContent = data.lab.b;
         
-        this.infoLAB.textContent = `L: ${data.lab.L}, a: ${data.lab.a}, b: ${data.lab.b}`;
-        
-        // Обновляем превью цвета
         this.colorPreview.style.backgroundColor = `rgb(${data.r}, ${data.g}, ${data.b})`;
     }
+
 
     handleFileLoad(event) {
         const file = event.target.files[0];

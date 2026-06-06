@@ -434,7 +434,7 @@ body {
 
 /* Панель каналов */
 .channels-panel {
-    top: 60px;
+    top: 90px;
     right: 10px;
     width: 220px;
 }
@@ -456,8 +456,9 @@ body {
 .channel-preview {
     border-radius: 3px;
     border: 1px solid var(--border);
-    width: 60px;
-    height: 40px;
+    max-width: 60px;
+    max-height: 40px;
+    object-fit: contain;
 }
 
 .channel-info {
@@ -500,11 +501,34 @@ body {
     filter: grayscale(100%);
 }
 
-/* Панель информации (пипетка) */
 .info-panel {
     bottom: 40px;
     right: 10px;
-    width: 220px;
+    width: 200px;
+}
+
+.info-section {
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.info-section:last-of-type {
+    border-bottom: none;
+}
+
+.info-section-title {
+    color: var(--text-secondary);
+    font-size: 11px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 11px;
+    display: block;
+    padding-left: 8px;
 }
 
 .info-row {
@@ -520,12 +544,6 @@ body {
 
 .info-label {
     color: var(--text-secondary);
-    font-size: 11px;
-}
-
-.info-value {
-    color: var(--text-primary);
-    font-family: 'Consolas', 'Monaco', monospace;
     font-size: 11px;
 }
 
@@ -551,12 +569,6 @@ body {
         right: 4px;
         width: 180px;
         font-size: 10px;
-    }
-    
-    .info-panel {
-        bottom: 32px;
-        right: 4px;
-        width: 180px;
     }
     
     .channel-preview {
@@ -896,10 +908,4 @@ body {
 .channel-checkboxes {
     display: flex;
     gap: 16px;
-}
-
-.info-value {
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }

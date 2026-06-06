@@ -115,7 +115,7 @@
                 </div>
                 <div class="panel-content" id="channelsPanelContent">
                     <div class="channel-item" data-channel="red">
-                        <canvas class="channel-preview" id="previewRed" width="60" height="40"></canvas>
+                        <canvas class="channel-preview" id="previewRed"></canvas>
                         <div class="channel-info">
                             <label class="channel-label">
                                 <input type="checkbox" class="channel-checkbox" data-channel="red" checked>
@@ -125,7 +125,7 @@
                         </div>
                     </div>
                     <div class="channel-item" data-channel="green">
-                        <canvas class="channel-preview" id="previewGreen" width="60" height="40"></canvas>
+                        <canvas class="channel-preview" id="previewGreen"></canvas>
                         <div class="channel-info">
                             <label class="channel-label">
                                 <input type="checkbox" class="channel-checkbox" data-channel="green" checked>
@@ -135,7 +135,7 @@
                         </div>
                     </div>
                     <div class="channel-item" data-channel="blue">
-                        <canvas class="channel-preview" id="previewBlue" width="60" height="40"></canvas>
+                        <canvas class="channel-preview" id="previewBlue"></canvas>
                         <div class="channel-info">
                             <label class="channel-label">
                                 <input type="checkbox" class="channel-checkbox" data-channel="blue" checked>
@@ -145,7 +145,7 @@
                         </div>
                     </div>
                     <div class="channel-item" data-channel="alpha">
-                        <canvas class="channel-preview" id="previewAlpha" width="60" height="40"></canvas>
+                        <canvas class="channel-preview" id="previewAlpha"></canvas>
                         <div class="channel-info">
                             <label class="channel-label">
                                 <input type="checkbox" class="channel-checkbox" data-channel="alpha" checked>
@@ -156,36 +156,37 @@
                     </div>
                 </div>
             </div>
-            
             <!-- Панель информации пипетки -->
             <div class="panel info-panel" id="infoPanel">
                 <div class="panel-header">
                     <span class="panel-title">Информация о пикселе</span>
                 </div>
                 <div class="panel-content">
-                    <div class="info-row">
-                        <span class="info-label">Координаты:</span>
-                        <span class="info-value" id="infoCoords">—</span>
+                    <div class="info-section">
+                        <span class="info-section-title">Координаты:</span>
+                        <span class="info-value">X: <span id="infoX">—</span>, Y: <span id="infoY">—</span></span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">RGB:</span>
-                        <span class="info-value" id="infoRGB">—</span>
+                    <div class="info-section">
+                        <span class="info-section-title">Каналы:</span>
+                        <span class="info-value">R: <span id="infoR">—</span></span>
+                        <span class="info-value">G: <span id="infoG">—</span></span>
+                        <span class="info-value">B: <span id="infoB">—</span></span>
+                        <span class="info-value">A: <span id="infoA">—</span></span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">HEX:</span>
+                    <div class="info-section">
+                        <span class="info-section-title">HEX:</span>
                         <span class="info-value" id="infoHEX">—</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Alpha:</span>
-                        <span class="info-value" id="infoAlpha">—</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">CIELAB:</span>
-                        <span class="info-value" id="infoLAB">—</span>
+                    <div class="info-section">
+                        <span class="info-section-title">CIELAB:</span>
+                        <span class="info-value">L: <span id="infoL">—</span></span>
+                        <span class="info-value">a: <span id="infoA_star">—</span></span>
+                        <span class="info-value">b: <span id="infoB_star">—</span></span>
                     </div>
                     <div class="color-preview" id="colorPreview"></div>
                 </div>
             </div>
+
         </main>
 
         <!-- Строка состояния -->
