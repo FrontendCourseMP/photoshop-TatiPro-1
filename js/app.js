@@ -607,7 +607,19 @@ class ImageProcessorApp {
     }
 
     handleResize() {
-        // Автоматическая адаптация через CSS
+        if (this.originalCanvasWidth && this.originalCanvasHeight) {
+            const wrapper = this.canvasWrapper;
+            const currentWidth = parseInt(this.canvas.style.width);
+            const currentHeight = parseInt(this.canvas.style.height);
+            
+            const left = Math.max(0, (wrapper.clientWidth - currentWidth) / 2);
+            const top = Math.max(0, (wrapper.clientHeight - currentHeight) / 2);
+            this.canvas.style.left = left + 'px';
+            this.canvas.style.top = top + 'px';
+            
+            wrapper.scrollLeft = Math.max(0, (currentWidth - wrapper.clientWidth) / 2);
+            wrapper.scrollTop = Math.max(0, (currentHeight - wrapper.clientHeight) / 2);
+        }
     }
 
     imageHasAlpha(ctx, width, height) {
