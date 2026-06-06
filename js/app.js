@@ -345,6 +345,12 @@ class ImageProcessorApp {
         this.infoCoords.textContent = `X: ${data.x}, Y: ${data.y}`;
         this.infoRGB.textContent = `R: ${data.r}, G: ${data.g}, B: ${data.b}`;
         this.infoHEX.textContent = data.hex;
+
+        this.infoAlpha = this.infoAlpha || document.getElementById('infoAlpha');
+        if (this.infoAlpha) {
+            this.infoAlpha.textContent = `A: ${data.a}`;
+        }
+        
         this.infoLAB.textContent = `L: ${data.lab.L}, a: ${data.lab.a}, b: ${data.lab.b}`;
         
         // Обновляем превью цвета
