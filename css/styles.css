@@ -909,7 +909,7 @@ body {
     }
 
     .info-panel {
-        max-height: 28vh;
+        max-height: 40vh;
         overflow-y: auto;
     }
 
