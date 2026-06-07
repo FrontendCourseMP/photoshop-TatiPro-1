@@ -559,6 +559,11 @@ body {
 
 /* ===== ДИАЛОГИ ===== */
 .levels-dialog {
+    position: fixed;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    margin: 0;
     background: var(--bg-panel);
     color: var(--text-primary);
     border: 1px solid var(--border);
@@ -566,6 +571,62 @@ body {
     padding: 0;
     width: 420px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.levels-dialog .btn {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 12px;
+    gap: 6px;
+    flex-shrink: 0;
+    min-width: auto;
+}
+
+.levels-dialog .btn-icon {
+    font-size: 14px;
+}
+
+.levels-dialog .btn-text {
+    font-size: 12px;
+}
+
+.levels-dialog .select-dark {
+    height: 32px;
+    padding: 0 8px;
+    font-size: 12px;
+    max-width: none;
+}
+
+.levels-dialog .slider-number {
+    width: 60px;
+    padding: 2px 6px;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.levels-dialog .dialog-title {
+    font-size: 14px;
+}
+
+.levels-dialog .dialog-close-btn {
+    font-size: 16px;
+    padding: 4px 8px;
+}
+
+.levels-dialog .checkbox-label {
+    font-size: 12px;
+}
+
+.levels-dialog .levels-label {
+    font-size: 12px;
+}
+
+.levels-dialog .info-label {
+    font-size: 11px;
+}
+
+.levels-dialog .info-value {
+    font-size: 11px;
 }
 
 #filterDialog::backdrop {
@@ -580,14 +641,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 14px;
+    padding: 12px 16px;
     background: var(--bg-input);
     border-radius: 8px 8px 0 0;
     border-bottom: 1px solid var(--border);
 }
 
 .dialog-title {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -596,8 +657,8 @@ body {
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
-    font-size: 15px;
-    padding: 3px 6px;
+    font-size: 16px;
+    padding: 4px 8px;
     border-radius: 3px;
 }
 
@@ -607,14 +668,14 @@ body {
 }
 
 .dialog-body {
-    padding: 14px;
+    padding: 16px;
 }
 
 .dialog-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 14px;
+    padding: 12px 16px;
     background: var(--bg-input);
     border-radius: 0 0 8px 8px;
     border-top: 1px solid var(--border);
@@ -622,28 +683,28 @@ body {
 
 .dialog-footer-right {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 /* Levels */
 .levels-channel-select {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .levels-label {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-secondary);
     white-space: nowrap;
 }
 
 .histogram-container {
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     background: var(--bg-canvas);
     border-radius: 4px;
-    padding: 6px;
+    padding: 8px;
 }
 
 .histogram-canvas {
@@ -655,18 +716,18 @@ body {
 
 .histogram-controls {
     display: flex;
-    gap: 14px;
-    margin-top: 6px;
+    gap: 16px;
+    margin-top: 8px;
     justify-content: center;
 }
 
 .radio-label {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-secondary);
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
 }
 
 .radio-label input {
@@ -674,30 +735,30 @@ body {
 }
 
 .levels-sliders {
-    margin-bottom: 14px;
+    margin-bottom: 16px;
 }
 
 .slider-group {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .slider-label {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-secondary);
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 
 .slider-number {
-    width: 55px;
-    padding: 2px 4px;
+    width: 60px;
+    padding: 2px 6px;
     background: var(--bg-input);
     color: var(--text-primary);
     border: 1px solid var(--border);
     border-radius: 3px;
-    font-size: 10px;
+    font-size: 11px;
     font-family: 'Consolas', 'Monaco', monospace;
     text-align: center;
 }
@@ -709,7 +770,7 @@ body {
 
 .slider-range {
     width: 100%;
-    height: 5px;
+    height: 6px;
     -webkit-appearance: none;
     appearance: none;
     background: var(--bg-input);
@@ -720,8 +781,8 @@ body {
 
 .slider-range::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: var(--accent);
     cursor: pointer;
@@ -729,8 +790,8 @@ body {
 }
 
 .slider-range::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: var(--accent);
     cursor: pointer;
@@ -742,12 +803,12 @@ body {
 }
 
 .checkbox-label {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-secondary);
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 
 .checkbox-label input {
@@ -756,16 +817,16 @@ body {
 
 /* Resize */
 .resize-info {
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     background: var(--bg-canvas);
     border-radius: 4px;
-    padding: 6px 10px;
+    padding: 8px 12px;
 }
 
 .resize-info .info-row {
     display: flex;
     justify-content: space-between;
-    padding: 3px 0;
+    padding: 4px 0;
     border-bottom: 1px solid var(--border);
 }
 
@@ -775,8 +836,8 @@ body {
 
 .resize-fields {
     display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 12px;
+    margin-bottom: 12px;
 }
 
 .resize-field-group {
@@ -786,7 +847,7 @@ body {
 .resize-field-group .slider-label {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
 }
 
 .resize-field-group .slider-number {
@@ -794,13 +855,13 @@ body {
 }
 
 .interpolation-tooltip {
-    margin-top: 6px;
-    padding: 6px 10px;
+    margin-top: 8px;
+    padding: 8px 12px;
     background: var(--bg-canvas);
     border-radius: 4px;
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-secondary);
-    line-height: 1.3;
+    line-height: 1.4;
     border-left: 3px solid var(--accent);
 }
 
@@ -808,21 +869,21 @@ body {
 .kernel-grid {
     display: flex;
     flex-direction: column;
-    gap: 3px;
-    margin-bottom: 14px;
+    gap: 4px;
+    margin-bottom: 16px;
     align-items: center;
 }
 
 .kernel-row {
     display: flex;
-    gap: 3px;
+    gap: 4px;
 }
 
 .kernel-cell {
-    width: 55px;
-    height: 32px;
+    width: 60px;
+    height: 36px;
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
     font-family: 'Consolas', 'Monaco', monospace;
     background: var(--bg-input);
     color: var(--text-primary);
@@ -837,7 +898,7 @@ body {
 
 .channel-checkboxes {
     display: flex;
-    gap: 14px;
+    gap: 16px;
 }
 
 /* ===== АДАПТИВНОСТЬ ПО ВЫСОТЕ ===== */
@@ -851,6 +912,11 @@ body {
         max-height: 28vh;
         overflow-y: auto;
     }
+
+    .levels-dialog {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
 }
 
 @media (max-height: 500px) {
@@ -860,6 +926,10 @@ body {
 
     .info-panel {
         max-height: 22vh;
+    }
+
+    .levels-dialog {
+        max-height: 60vh;
     }
 }
 
@@ -977,6 +1047,79 @@ body {
         height: 12px;
         margin-top: 1px;
     }
+
+    .levels-dialog {
+        width: 280px;
+        left: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
+    }
+
+    .levels-dialog .btn {
+        height: 22px;
+        padding: 0 5px;
+        font-size: 9px;
+        gap: 2px;
+    }
+
+    .levels-dialog .btn-icon {
+        font-size: 10px;
+    }
+
+    .levels-dialog .btn-text {
+        font-size: 9px;
+    }
+
+    .levels-dialog .select-dark {
+        height: 22px;
+        padding: 0 3px;
+        font-size: 9px;
+    }
+
+    .levels-dialog .slider-number {
+        width: 40px;
+        font-size: 8px;
+    }
+
+    .levels-dialog .dialog-title {
+        font-size: 11px;
+    }
+
+    .levels-dialog .dialog-close-btn {
+        font-size: 13px;
+        padding: 2px 5px;
+    }
+
+    .levels-dialog .checkbox-label {
+        font-size: 9px;
+    }
+
+    .levels-dialog .levels-label {
+        font-size: 9px;
+    }
+
+    .dialog-body {
+        padding: 8px;
+    }
+
+    .dialog-header {
+        padding: 6px 10px;
+    }
+
+    .dialog-footer {
+        padding: 6px 10px;
+    }
+
+    .histogram-canvas {
+        height: 60px;
+    }
+
+    .kernel-cell {
+        width: 40px;
+        height: 24px;
+        font-size: 11px;
+    }
 }
 
 @media (max-width: 600px) {
@@ -1012,14 +1155,52 @@ body {
     .info-panel {
         width: 105px;
     }
+
+    .levels-dialog {
+        width: 220px;
+        left: 3px;
+    }
+
+    .levels-dialog .btn {
+        height: 20px;
+        padding: 0 3px;
+        font-size: 8px;
+    }
+
+    .levels-dialog .select-dark {
+        height: 20px;
+        font-size: 8px;
+    }
+
+    .levels-dialog .slider-number {
+        width: 32px;
+        font-size: 7px;
+    }
+
+    .dialog-body {
+        padding: 5px;
+    }
+
+    .dialog-header {
+        padding: 4px 6px;
+    }
+
+    .dialog-footer {
+        padding: 4px 6px;
+    }
+
+    .histogram-canvas {
+        height: 45px;
+    }
+
+    .kernel-cell {
+        width: 32px;
+        height: 20px;
+        font-size: 10px;
+    }
 }
 
 @media (max-width: 480px) {
-    .levels-dialog {
-        width: 95vw;
-        margin: 10px;
-    }
-
     .btn {
         padding: 0 1px;
         font-size: 8px;
@@ -1034,5 +1215,43 @@ body {
         top: calc(85px + 28vh + 6px);
         width: 90px;
         max-height: calc(100vh - 85px - 28vh - 6px - 32px);
+    }
+
+    .levels-dialog {
+        width: 180px;
+        left: 2px;
+    }
+
+    .levels-dialog .btn {
+        height: 18px;
+        padding: 0 2px;
+        font-size: 7px;
+    }
+
+    .levels-dialog .select-dark {
+        height: 18px;
+        font-size: 7px;
+    }
+
+    .dialog-body {
+        padding: 4px;
+    }
+
+    .dialog-header {
+        padding: 3px 5px;
+    }
+
+    .dialog-footer {
+        padding: 3px 5px;
+    }
+
+    .histogram-canvas {
+        height: 35px;
+    }
+
+    .kernel-cell {
+        width: 28px;
+        height: 18px;
+        font-size: 9px;
     }
 }
