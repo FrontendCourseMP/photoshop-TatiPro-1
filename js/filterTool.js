@@ -207,7 +207,45 @@ export class FilterTool {
         );
         this.originalImageData = imageData;
 
-        // Загружаем пресет по умолчанию
+        const channelCount = this.app.channelManager.channelCount || 4;
+        
+        const redCB = document.querySelector('.filter-channel[data-channel="red"]');
+        const greenCB = document.querySelector('.filter-channel[data-channel="green"]');
+        const blueCB = document.querySelector('.filter-channel[data-channel="blue"]');
+        const alphaCB = document.querySelector('.filter-channel[data-channel="alpha"]');
+        
+        const redLabel = redCB.closest('.checkbox-label');
+        const greenLabel = greenCB.closest('.checkbox-label');
+        const blueLabel = blueCB.closest('.checkbox-label');
+        const alphaLabel = alphaCB.closest('.checkbox-label');
+        
+        const isGray = channelCount === 1 || channelCount === 2;
+        const hasRGB = channelCount >= 3;
+        const hasAlpha = channelCount === 2 || channelCount === 4;
+        
+        if (isGray) {
+            redLabel.style.display = '';
+            // Меняем текст "R" на "Серый"
+            redLabel.childNodes.forEach(node => {
+                if (node.nodeType === 3 || node.tagName === 'SPAN') {
+                    node.textContent = node.textContent.replace('R', 'Серый');
+                }
+            });
+            greenLabel.style.display = 'none';
+            blueLabel.style.display = 'none';
+            redCB.checked = true;
+        } else {
+            redLabel.style.display = hasRGB ? '' : 'none';
+            greenLabel.style.display = hasRGB ? '' : 'none';
+            blueLabel.style.display = hasRGB ? '' : 'none';
+            redCB.checked = hasRGB;
+            greenCB.checked = hasRGB;
+            blueCB.checked = hasRGB;
+        }
+        
+        alphaLabel.style.display = hasAlpha ? '' : 'none';
+        alphaCB.checked = hasAlpha;
+
         this.filterPreset.value = 'identity';
         this.loadPreset('identity');
         this.edgeMode.value = 'clamp';
