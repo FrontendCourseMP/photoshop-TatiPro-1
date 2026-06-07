@@ -222,8 +222,12 @@ export class LevelsTool {
         const redOption = this.channelSelect.querySelector('option[value="red"]');
         const greenOption = this.channelSelect.querySelector('option[value="green"]');
         const blueOption = this.channelSelect.querySelector('option[value="blue"]');
-        
-        if (channelCount === 1 || channelCount === 2) {
+
+        if (channelCount === 1) {
+            redOption.style.display = 'none';
+            greenOption.style.display = 'none';
+            blueOption.style.display = 'none';
+        } else if (channelCount === 2) {
             redOption.textContent = 'Серый';
             greenOption.style.display = 'none';
             blueOption.style.display = 'none';
@@ -238,6 +242,7 @@ export class LevelsTool {
         } else {
             alphaOption.style.display = 'none';
         }
+
     }
 
     resetAllSettings() {
@@ -249,12 +254,18 @@ export class LevelsTool {
     /**
      * Обновляет предпросмотр через новый LUT API (setParams)
      */
+
     updatePreview() {
         if (!this.originalImageData) return;
 
         this.lut.reset();
 
-        ['master', 'red', 'green', 'blue', 'alpha'].forEach(ch => {
+        // Применяем master
+        const ms = this.settings.master;
+        this.lut.setParams('master', ms.black, ms.white, ms.gamma);
+
+        // Всегда применяем per-channel (даже дефолтные — они identity)
+        ['red', 'green', 'blue', 'alpha'].forEach(ch => {
             const s = this.settings[ch];
             this.lut.setParams(ch, s.black, s.white, s.gamma);
         });
@@ -262,6 +273,8 @@ export class LevelsTool {
         const corrected = this.lut.apply(this.originalImageData);
         this.app.ctx.putImageData(corrected, 0, 0);
     }
+  
+
 
     requestPreviewUpdate() {
         this._previewPending = true;
